@@ -1,0 +1,39 @@
+name: Deploy using connectors monkey
+
+on:
+  workflow_call:
+    inputs:
+      cloud-provider: 
+        required: false
+        type: string
+        default: local
+      metadata:
+        required: false
+        type: string
+        default: "[ orphan ]"
+      host: 
+        required: false
+        type: string
+        default: '/'
+
+jobs:      
+  build-local:
+    runs-on: ubuntu-22.04
+    if: inputs.cloud-provider == 'local' 
+        
+    steps:
+              
+      - name: local condition
+        run: | 
+          echo ${{ inputs.cloud-provider }}     
+                  
+  build-civo:
+    runs-on: ubuntu-22.04
+    if: inputs.cloud-provider == 'civo'
+
+    steps:
+      
+      - name: civo conditions
+        run: |
+          echo ${{ inputs.cloud-provider }}
+         
