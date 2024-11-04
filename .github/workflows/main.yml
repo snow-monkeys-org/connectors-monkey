@@ -60,8 +60,8 @@ jobs:
           echo "cloning config repo java-test"
           ls
           git clone https://oath2:${{ secrets.github-token }}@github.com/yabinboxes/java-test.git
-          ls
           cd java-test
+          ls
           echo "checkout main branch"
           git checkout main
           echo "updating image tag in values file"
