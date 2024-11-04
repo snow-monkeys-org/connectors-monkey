@@ -15,6 +15,9 @@ on:
         required: false
         type: string
         default: '/'
+    secrets:
+      cloud-token:
+        required: false
 
 jobs:      
   build-local:
