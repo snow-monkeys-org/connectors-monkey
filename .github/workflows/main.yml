@@ -37,26 +37,26 @@ jobs:
         run: |
           echo ${{ inputs.cloud-provider }}
       
-      - uses: actions/checkout@v3
+#      - uses: actions/checkout@v3
       
-      - name: connect to civo kubernetes
-        run: |
-          curl -sL https://civo.com/get | sh
-          civo apikey add my-cluster ${{ secrets.cloud-token }}
-          civo kubernetes config k8s_demo_1 --save
-          kubectl cluster-info
-          kubectl apply -f repo-creds.yaml
-          kubectl apply -f application.yaml
+#      - name: connect to civo kubernetes
+#        run: |
+#          curl -sL https://civo.com/get | sh
+#          civo apikey add my-cluster ${{ secrets.cloud-token }}
+#          civo kubernetes config k8s_demo_1 --save
+#          kubectl cluster-info
+#          kubectl apply -f repo-creds.yaml
+#          kubectl apply -f application.yaml
 
-      - name: create new repo for civo
-        run: |
-          echo "promoting into dev environment"
-          git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
-          cd $CONFIG_REPO_NAME
-          echo "checkout main branch"
-          git checkout main
-          echo "updating image tag in values file"
-          sed -i "s,tag:.",tag:\ ${{ github.sha }}," myapp-helm/values.yaml
-          git add . && git commit -m "update image tag"
-          git push
+#      - name: create new repo for civo
+#        run: |
+#          echo "promoting into dev environment"
+#          git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
+#          cd $CONFIG_REPO_NAME
+#          echo "checkout main branch"
+#          git checkout main
+#          echo "updating image tag in values file"
+#          sed -i "s,tag:.",tag:\ ${{ github.sha }}," myapp-helm/values.yaml
+#          git add . && git commit -m "update image tag"
+#          git push
          
