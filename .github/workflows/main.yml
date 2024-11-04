@@ -18,6 +18,8 @@ on:
     secrets:
       cloud-token:
         required: false
+      github-token:
+        required: false
 
 jobs:      
   build-local:
@@ -40,7 +42,7 @@ jobs:
         run: |
           echo ${{ inputs.cloud-provider }}
       
-      - uses: actions/checkout@v3
+#      - uses: actions/checkout@v3
       
       - name: connect to civo kubernetes
         run: |
@@ -48,13 +50,15 @@ jobs:
           civo apikey add my-cluster ${{ secrets.cloud-token }}
           civo kubernetes config k8s_demo_1 --save
           kubectl cluster-info
-          kubectl apply -f repo-creds.yaml
-          kubectl apply -f application.yaml
+#          kubectl apply -f repo-creds.yaml
+#          kubectl apply -f application.yaml
 
       - name: create new repo for civo
         run: |
           echo "promoting into dev environment"
           git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
+          echo "cloning config repo $CONFIG_REPO_NAME"
+          git clone https://oath2:${{ secrets.github-token }}@github.com/${{ github.repository_owner }}/$CONFIG_REPO_NAME.git
           cd $CONFIG_REPO_NAME
           echo "checkout main branch"
           git checkout main
