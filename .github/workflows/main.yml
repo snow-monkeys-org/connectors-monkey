@@ -44,12 +44,6 @@ jobs:
     runs-on: ubuntu-22.04
     if: inputs.cloud-provider == 'civo'
 
-    permissions:
-      contents: read
-      packages: write
-      attestations: write
-      id-token: write
-
     steps:      
       - name: civo conditions
         run: |
