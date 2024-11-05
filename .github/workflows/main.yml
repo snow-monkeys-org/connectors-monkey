@@ -76,7 +76,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: my-app:${{github.sha}}
+          tags: yabinm/app:${{github.sha}}
 
       - name: docker ps
         run: |
