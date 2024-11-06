@@ -82,10 +82,12 @@ jobs:
           echo "cloning config repo helm-template"
           git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/helm-template.git
           mkdir ${{ github.repository }}-helm-civo
+          ls
+          echo "---------------------"
           cp -a /helm-template/myapp-helm /${{ github.repository }}-helm-civo/
           ls
-          cp -a /helm-template/myapp-helm/application.yaml /${{ github.repository }}-helm-civo/
-          cp -a /helm-template/myapp-helm/repo-creds.yaml /${{ github.repository }}-helm-civo/
+          cp -a /helm-template/application.yaml /${{ github.repository }}-helm-civo/
+          cp -a /helm-template/repo-creds.yaml /${{ github.repository }}-helm-civo/
           ls
 
       
