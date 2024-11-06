@@ -77,14 +77,17 @@ jobs:
 #     2. clone & exec helm
       - name: clone and exec helm
         run: |
-          ls
           echo "promoting helm"
           git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
           echo "cloning config repo helm-template"
           git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/helm-template.git
+          mkdir ${{ github.repository }}-helm-civo
+          cp -a /helm-template/myapp-helm /${{ github.repository }}-helm-civo/
           ls
-          gh
-#          (type -p wget >/dev/null || (sudo apt update && sudo apt-get install wget -y)) && sudo mkdir -p -m 755 /etc/apt/keyrings && wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null && sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null && sudo apt update && sudo apt install gh -y
+          cp -a /helm-template/myapp-helm/application.yaml /${{ github.repository }}-helm-civo/
+          cp -a /helm-template/myapp-helm/repo-creds.yaml /${{ github.repository }}-helm-civo/
+          ls
+
       
       #- name: create new project in github
 
