@@ -79,7 +79,5 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.github-token }}
         run: |
-          gh auth login
-          echo "SEARCH_REPO=$(gh search repos "${{ github.event.repository.name }}-helm-civo")" >> $GITHUB_ENV
-          echo "{{ env.SEARCH_REPO }}"
+          gh search repos "${{ github.event.repository.name }}-helm-civo"
         
