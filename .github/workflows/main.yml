@@ -79,5 +79,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.github-token }}
         run: |
-          gh search repos "${{ github.event.repository.name }}-helm-civo"
+          echo "EXIST_REPO=$(gh search repos ${{ github.event.repository.name }}-helm-civo)" >> $GITHUB_ENV
+          echo $EXIST_REPO
+
+      
+#     if repo already exist
+      - name: repo already exist for helm
+        if:  
+        env:
+          GH_TOKEN: ${{ secrets.github-token }}
+        run: |
+          echo repo already exist
         
