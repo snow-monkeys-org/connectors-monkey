@@ -86,8 +86,9 @@ jobs:
           echo "---------------------"
           cp -a /helm-template/application.yaml /${{ github.event.repository.name }}-helm-civo/
           cp -a /helm-template/repo-creds.yaml /${{ github.event.repository.name }}-helm-civo/
+          cd ${{ github.event.repository.name }}-helm-civo
           ls
-          
+
 
       
       #- name: create new project in github
