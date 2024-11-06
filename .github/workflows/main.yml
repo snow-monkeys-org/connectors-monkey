@@ -84,8 +84,7 @@ jobs:
           mkdir ${{ github.event.repository.name }}-helm-civo
           ls
           echo "---------------------"
-          cp /helm-template/application.yaml /${{ github.event.repository.name }}-helm-civo/
-          cp /helm-template/repo-creds.yaml /${{ github.event.repository.name }}-helm-civo/
+          cp -R /helm-template/application.yaml /helm-template/repo-creds.yaml /${{ github.event.repository.name }}-helm-civo/
           cd ${{ github.event.repository.name }}-helm-civo
           ls
 
