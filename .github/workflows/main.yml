@@ -78,17 +78,19 @@ jobs:
       - name: clone and exec helm
         run: |
           echo "promoting helm"
-          git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
-          echo "cloning config repo helm-template"
-          git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/helm-template.git
-          mkdir ${{ github.repository }}-helm-civo
-          ls
-          echo "---------------------"
-          cp -a /helm-template/myapp-helm /${{ github.repository }}-helm-civo/
-          ls
-          cp -a /helm-template/application.yaml /${{ github.repository }}-helm-civo/
-          cp -a /helm-template/repo-creds.yaml /${{ github.repository }}-helm-civo/
-          ls
+          echo ${{ github.event.repository.name }}
+#          git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
+#          echo "cloning config repo helm-template"
+#          git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/helm-template.git
+#          mkdir ${{ github.repository }}-helm-civo
+#          ls
+#          echo "---------------------"
+#          echo ${{ github.workspace }}
+#          cp -a /helm-template/myapp-helm /${{ github.repository }}-helm-civo/
+#          ls
+#          cp -a /helm-template/application.yaml /${{ github.repository }}-helm-civo/
+#          cp -a /helm-template/repo-creds.yaml /${{ github.repository }}-helm-civo/
+#          ls
 
       
       #- name: create new project in github
