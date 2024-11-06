@@ -84,11 +84,10 @@ jobs:
           mkdir ${{ github.event.repository.name }}-helm-civo
           ls
           echo "---------------------"
-          cp -a /helm-template/myapp-helm /${{ github.event.repository.name }}-helm-civo/
-          ls
           cp -a /helm-template/application.yaml /${{ github.event.repository.name }}-helm-civo/
           cp -a /helm-template/repo-creds.yaml /${{ github.event.repository.name }}-helm-civo/
           ls
+          
 
       
       #- name: create new project in github
