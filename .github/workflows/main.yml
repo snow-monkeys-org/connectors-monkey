@@ -79,15 +79,24 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.github-token }}
         run: |
+          echo "EXIST_REPO1=$(gh search repos helm --owner=snow-monkeys-org --visibility=private)" >> $GITHUB_ENV
+          echo ${{ env.EXIST_REPO1 }}
           echo "EXIST_REPO=$(gh search repos ${{ github.event.repository.name }}-helm-civo)" >> $GITHUB_ENV
           echo ${{ env.EXIST_REPO }}
 
       
 #     if repo already exist
       - name: repo already exist for helm
-        if:  
+        if:  ${{ env.EXIST_REPO1 }} != no repositories matched your search
         env:
           GH_TOKEN: ${{ secrets.github-token }}
         run: |
-          echo repo already exist ${{ env.EXIST_REPO }}
+          echo repo already exist ${{ env.EXIST_REPO1 }}
+
+#     if repo doesnt exist
+#      - name: repo doesnt exist for helm
+#     env:
+#     GH_TOKEN: ${{ secrets.github-token }}
+#     run: |
+#  echo repo already exist ${{ env.EXIST_REPO }}
         
