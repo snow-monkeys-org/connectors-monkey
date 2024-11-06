@@ -77,19 +77,27 @@ jobs:
 #     2. clone & exec helm
       - name: clone and exec helm
         run: |
-          echo "promoting helm"
-          git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
-          echo "cloning config repo helm-template"
-          git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/helm-template.git
-          mkdir ${{ github.event.repository.name }}-helm-civo
-          ls
-          echo "---------------------"
-          cd helm-template
-          cp -R application.yaml repo-creds.yaml ../${{ github.event.repository.name }}-helm-civo/
-          cp -R myapp-helm ../${{ github.event.repository.name }}-helm-civo/myapp-helm/
-          cd ..
-          cd ${{ github.event.repository.name }}-helm-civo/
-          ls
+          echo ${{ secrets.github-token }} | gh auth login --with-token
+          echo "SEARCH_REPO=$(gh search repos "${{ github.event.repository.name }}-helm-civo")" >> $GITHUB_ENV
+          echo "{{ env.SEARCH_REPO }}"
+        
+
+#          echo "promoting helm"
+#          git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
+#          echo "cloning config repo helm-template"
+#          git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/helm-template.git
+#          mkdir ${{ github.event.repository.name }}-helm-civo
+#          ls
+#          echo "---------------------"
+#          cd helm-template
+#          cp -R application.yaml repo-creds.yaml ../${{ github.event.repository.name }}-helm-civo/
+#          cp -R myapp-helm ../${{ github.event.repository.name }}-helm-civo/myapp-helm/
+#          cd ..
+#          cd ${{ github.event.repository.name }}-helm-civo/
+#          git init -b main
+#          git add .
+#          git commit -m "init new helm repo"
+
 
 
       
