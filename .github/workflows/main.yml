@@ -104,7 +104,7 @@ jobs:
           git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/helm-template.git
           echo "creating ${{ github.event.repository.name }}-helm-civo"
           gh repo create ${{ github.event.repository.name }}-helm-civo --private
-          git clone https://oath2:${{ secrets.github-token }}@github.com/${{ github.event.repository.name }}-helm-civo.git
+          mkdir ${{ github.event.repository.name }}-helm-civo
           echo "---------------------"
           ls
           echo "---------------------"
@@ -116,16 +116,13 @@ jobs:
           echo "---------------------"
           ls
           echo "---------------------"
-          
-#          cd ${{ github.event.repository.name }}-helm-civo
-#          mkdir ${{ github.event.repository.name }}-helm-civo
-#          cd ${{ github.event.repository.name }}-helm-civo
-#          git init -b main
-#          git add .
-#          git commit -m "init new helm repo"
-#          git branch -M main
-#          git push -u origin main
-#          ls
+          git init
+          git add .
+          git commit -m "init new helm repo"
+          git branch -M main
+          git remote add origin https://github.com/yabinboxes/${{ github.event.repository.name }}-helm-civo.git
+          git push -u origin main
+          ls
           
           
 
