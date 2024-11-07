@@ -81,9 +81,7 @@ jobs:
           GH_TOKEN: ${{ secrets.github-token }}
         run: |
           echo "EXIST_REPO_1=$(gh repo view snow-monkeys-org/helm-template)" >> $GITHUB_OUTPUT
-          echo $EXIST_REPO_1
           echo "EXIST_REPO_2=$(gh repo view snow-monkeys-org/${{ github.event.repository.name }}-helm-civo)" >> $GITHUB_OUTPUT
-          echo $EXIST_REPO_2
 
       
 #     if repo already exist
