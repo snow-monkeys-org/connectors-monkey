@@ -100,7 +100,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.github-token }}
         run: |
-          echo 
+          echo "not exec"
           
 
 #     if repo doesnt exist
