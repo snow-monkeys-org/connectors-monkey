@@ -85,7 +85,7 @@ jobs:
       
 #     if repo already exist
       - name: repo already exist for working project
-        if:  ${{ steps.exist-repo.outputs.EXIST_REPO }}
+        if:  ${{ steps.validate-repo.outputs.EXIST_REPO }}
         env:
           GH_TOKEN: ${{ secrets.github-token }}
         run: |
@@ -94,7 +94,7 @@ jobs:
 
 #     if repo doesnt exist
       - name: repo doesnt exist for working project
-        if:  ${{ ! steps.exist-repo.outputs.EXIST_REPO }}
+        if:  ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
         env:
           GH_TOKEN: ${{ secrets.github-token }}
         run: |
@@ -109,11 +109,14 @@ jobs:
           cp -R application.yaml repo-creds.yaml ../${{ github.event.repository.name }}-helm-civo/
           cp -R myapp-helm ../${{ github.event.repository.name }}-helm-civo/myapp-helm/
           cd ..
-          cd ${{ github.event.repository.name }}-helm-civo/
+          gh repo create ${{ github.event.repository.name }}-helm-civo --private --source=. --remote=upstream
+          git clone https://oath2:${{ secrets.github-token }}@github.com/${{ github.event.repository.name }}-helm-civo.git
+          cd ${{ github.event.repository.name }}-helm-civo
           git init -b main
           git add .
           git commit -m "init new helm repo"
-          gh repo create ${{ github.event.repository.name }}-helm-civo --private --source=. --remote=upstream
+          git branch -M main
+          git push -u origin main
           
 
 #     if repo doesnt exist
