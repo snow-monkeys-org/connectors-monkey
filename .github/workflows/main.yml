@@ -75,30 +75,45 @@ jobs:
 #          ls
 
 #     2. clone & exec helm
-      - name: clone and exec helm
-        id: exist-repo
+      - name: clone and exec helm repo for the working project
+        id: validate-repo
         env:
           GH_TOKEN: ${{ secrets.github-token }}
         run: |
-          echo "EXIST_REPO_1=$(gh repo view snow-monkeys-org/helm-template | tr '\n' ' ')" >> $GITHUB_OUTPUT
-          echo "EXIST_REPO_2=$(gh repo view snow-monkeys-org/${{ github.event.repository.name }}-helm-civo | tr '\n' ' ')" >> $GITHUB_OUTPUT
+          echo "EXIST_REPO=$(gh repo view snow-monkeys-org/${{ github.event.repository.name }}-helm-civo | tr '\n' ' ')" >> $GITHUB_OUTPUT
 
       
 #     if repo already exist
-      - name: repo already exist for helm
-        if:  ${{ steps.exist-repo.outputs.EXIST_REPO_1 }}
+      - name: repo already exist for working project
+        if:  ${{ steps.exist-repo.outputs.EXIST_REPO }}
         env:
           GH_TOKEN: ${{ secrets.github-token }}
         run: |
-          echo "repo1 already exist ${{ steps.exist-repo.outputs.EXIST_REPO_1 }}"
-          echo "repo2 doesnt exist ${{ steps.exist-repo.outputs.EXIST_REPO_2 }}"
+          echo "already exist snow-monkeys-org/${{ github.event.repository.name }}-helm-civo"
+          
 
-      - name: not exec
-        if:  ${{ ! steps.exist-repo.outputs.EXIST_REPO_1 }}
+#     if repo doesnt exist
+      - name: repo doesnt exist for working project
+        if:  ${{ ! steps.exist-repo.outputs.EXIST_REPO }}
         env:
           GH_TOKEN: ${{ secrets.github-token }}
         run: |
-          echo "not exec"
+          echo "doesnt exist snow-monkeys-org/${{ github.event.repository.name }}-helm-civo"
+          git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
+          echo "cloning config repo helm-template"
+          git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/helm-template.git
+          mkdir ${{ github.event.repository.name }}-helm-civo
+          ls
+          echo "---------------------"
+          cd helm-template
+          cp -R application.yaml repo-creds.yaml ../${{ github.event.repository.name }}-helm-civo/
+          cp -R myapp-helm ../${{ github.event.repository.name }}-helm-civo/myapp-helm/
+          cd ..
+          cd ${{ github.event.repository.name }}-helm-civo/
+          git init -b main
+          git add .
+          git commit -m "init new helm repo"
+          gh repo create ${{ github.event.repository.name }}-helm-civo --private --source=. --remote=upstream
           
 
 #     if repo doesnt exist
