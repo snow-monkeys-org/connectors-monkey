@@ -80,20 +80,28 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.github-token }}
         run: |
-          echo "EXIST_REPO1=$(gh search repos helm --owner=snow-monkeys-org --visibility=private)" >> $GITHUB_OUTPUT
-          echo $EXIST_REPO1
-          echo "EXIST_REPO=$(gh search repos ${{ github.event.repository.name }}-helm-civo)" >> $GITHUB_OUTPUT
-          echo $EXIST_REPO
+          echo "EXIST_REPO_1=$(gh repo view snow-monkeys-org/helm-template)" >> $GITHUB_OUTPUT
+          echo $EXIST_REPO_1
+          echo "EXIST_REPO_2=$(gh repo view snow-monkeys-org/${{ github.event.repository.name }}-helm-civo)" >> $GITHUB_OUTPUT
+          echo $EXIST_REPO_2
 
       
 #     if repo already exist
       - name: repo already exist for helm
-        if:  ${{ steps.exist-repo.outputs.EXIST_REPO1 }} != no repositories matched your search
+        if:  ${{ steps.exist-repo.outputs.EXIST_REPO_1 }}
         env:
           GH_TOKEN: ${{ secrets.github-token }}
         run: |
-          echo repo1 already exist ${{ steps.exist-repo.outputs.EXIST_REPO1 }}
-          echo repo2 already exist ${{ steps.exist-repo.outputs.EXIST_REPO }}
+          echo "repo1 already exist ${{ steps.exist-repo.outputs.EXIST_REPO_1 }}"
+          echo "repo2 doesnt exist ${{ steps.exist-repo.outputs.EXIST_REPO_2 }}"
+
+      - name: not exec
+        if:  ${{ ! steps.exist-repo.outputs.EXIST_REPO_1 }}
+        env:
+          GH_TOKEN: ${{ secrets.github-token }}
+        run: |
+          echo 
+          
 
 #     if repo doesnt exist
 #      - name: repo doesnt exist for helm
