@@ -102,16 +102,16 @@ jobs:
           git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
           echo "cloning config repo helm-template"
           git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/helm-template.git
-          mkdir ${{ github.event.repository.name }}-helm-civo
+          gh repo create ${{ github.event.repository.name }}-helm-civo --private --source=. --remote=upstream
           ls
           echo "---------------------"
           cd helm-template
           cp -R application.yaml repo-creds.yaml ../${{ github.event.repository.name }}-helm-civo/
           cp -R myapp-helm ../${{ github.event.repository.name }}-helm-civo/myapp-helm/
           cd ..
-          gh repo create ${{ github.event.repository.name }}-helm-civo --private --source=. --remote=upstream
           git clone https://oath2:${{ secrets.github-token }}@github.com/${{ github.event.repository.name }}-helm-civo.git
           cd ${{ github.event.repository.name }}-helm-civo
+          ls
           git init -b main
           git add .
           git commit -m "init new helm repo"
