@@ -103,22 +103,26 @@ jobs:
           echo "cloning config repo helm-template"
           git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/helm-template.git
           echo "creating ${{ github.event.repository.name }}-helm-civo"
-          gh repo create ${{ github.event.repository.name }}-helm-civo --private --source=.
+          gh repo create ${{ github.event.repository.name }}-helm-civo --private
           echo "---------------------"
           ls
           echo "---------------------"
-          cd helm-template
-          cp -R application.yaml repo-creds.yaml ../${{ github.event.repository.name }}-helm-civo/
-          cp -R myapp-helm ../${{ github.event.repository.name }}-helm-civo/myapp-helm/
-          cd ..
-          git clone https://oath2:${{ secrets.github-token }}@github.com/${{ github.event.repository.name }}-helm-civo.git
-          cd ${{ github.event.repository.name }}-helm-civo
-          ls
-          git init -b main
-          git add .
-          git commit -m "init new helm repo"
-          git branch -M main
-          git push -u origin main
+#          cd helm-template
+#          cp -R application.yaml repo-creds.yaml ../${{ github.event.repository.name }}-helm-civo/
+#          cp -R myapp-helm ../${{ github.event.repository.name }}-helm-civo/myapp-helm/
+#          cd ..
+#          ls
+#          git clone https://oath2:${{ secrets.github-token }}@github.com/${{ github.event.repository.name }}-helm-civo.git
+#          cd ${{ github.event.repository.name }}-helm-civo
+#          mkdir ${{ github.event.repository.name }}-helm-civo
+#          cd ${{ github.event.repository.name }}-helm-civo
+#          git init -b main
+#          git add .
+#          git commit -m "init new helm repo"
+#          git branch -M main
+#          git push -u origin main
+#          ls
+          
           
 
 #     if repo doesnt exist
