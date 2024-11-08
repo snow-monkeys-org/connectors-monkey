@@ -103,7 +103,7 @@ jobs:
           echo "cloning config repo helm-template"
           git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/helm-template.git
           echo "creating ${{ github.event.repository.name }}-helm-civo"
-          gh repo create ${{ github.event.repository.name }}-helm-civo --private
+          gh repo create snow-monkeys-org/${{ github.event.repository.name }}-helm-civo --private
           mkdir ${{ github.event.repository.name }}-helm-civo
           echo "---------------------"
           ls
