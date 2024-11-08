@@ -122,7 +122,7 @@ jobs:
           git add .
           git commit -m "init new helm repo"
           git branch -M main
-          git remote add origin https://yabinboxes:${{ secrets.github-token }}@github.com/yabinboxes/${{ github.event.repository.name }}-helm-civo.git
+          git remote add origin https://yabinboxes:${{ secrets.github-token }}@github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git
           git push -u origin main
           ls
           
