@@ -135,7 +135,10 @@ jobs:
       - name: modify application argocd and credentials
         run: |
           cd ${{ github.event.repository.name }}-helm-civo
-          sed -i "s,name:.*,name:\ snow-monkeys-org/${{ github.event.repository.name }}-helm-civo," application.yaml
+          sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," application.yaml
+          sed -i "s,namespace:.*,namespace:\ ${{ github.event.repository.name }}-helm-civo," application.yaml
+          sed -i "s,repoURL:.*,repoURL:\ https://github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git," application.yaml
+          sed -i "s,hosts:.*,hosts:\ ${{ github.event.repository.name }}-helm-civo.connectorsapp.com," application.yaml
           cat application.yaml
           echo "---------------------"
           ls
