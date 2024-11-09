@@ -134,7 +134,7 @@ jobs:
       
       - name: modify application argocd and credentials
         run: |
-          sed -i "s,name:.*,name:\ snow-monkeys-org/${{ github.event.repository.name }}-helm-civo," application.yaml
+          sed -i "s,tag:.*,tag:\ ${{ github.sha }}," application.yaml
           cat application.yaml
           echo "---------------------"
           ls
