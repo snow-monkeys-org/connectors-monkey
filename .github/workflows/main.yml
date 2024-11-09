@@ -134,11 +134,12 @@ jobs:
       
       - name: modify application argocd and credentials
         run: |
-          sed -i "s,tag:.*,tag:\ ${{ github.sha }}," application.yaml
-          cat application.yaml
-          echo "---------------------"
+          echo "------ application.yaml --------"
           ls
           echo "---------------------"
+          sed -i "s,tag:.*,tag:\ ${{ github.sha }}," application.yaml
+          cat application.yaml
+          
       
       #   notify  
 #      - name: connect to civo kubernetes
