@@ -47,7 +47,7 @@ jobs:
 
 #     1. build repo with Dockerfile
       
-      - uses: actions/checkout@v4
+#      - uses: actions/checkout@v4
 
       
 #      - name: Set up QEMU
@@ -74,64 +74,98 @@ jobs:
 #          docker ps
 #          ls
 
-#     2. clone & exec helm
+#     2. check if project exist
       - name: clone and exec helm repo for the working project
         id: validate-repo
         env:
           GH_TOKEN: ${{ secrets.github-token }}
         run: |
           echo "EXIST_REPO=$(gh repo view snow-monkeys-org/${{ github.event.repository.name }}-helm-civo | tr '\n' ' ')" >> $GITHUB_OUTPUT
+       
 
-      
-#     if repo already exist
+#     if repo doesnt exist - clone & exec helm
+#      - name: repo doesnt exist for working project - clone and exec helm repo for the working project
+#        if:  ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
+#        env:
+#          GH_TOKEN: ${{ secrets.github-token }}
+#        run: |
+#          echo "doesnt exist snow-monkeys-org/${{ github.event.repository.name }}-helm-civo"
+#          git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
+#          echo "cloning config repo helm-template"
+#          git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/helm-template.git
+#          echo "creating ${{ github.event.repository.name }}-helm-civo"
+#          gh repo create snow-monkeys-org/${{ github.event.repository.name }}-helm-civo --private
+#          mkdir ${{ github.event.repository.name }}-helm-civo
+#          echo "---------------------"
+#          ls
+#          echo "---------------------"
+#          cd helm-template
+#          cp -R application.yaml repo-creds.yaml ../${{ github.event.repository.name }}-helm-civo/
+#          cp -R myapp-helm ../${{ github.event.repository.name }}-helm-civo/myapp-helm/
+#          cd ..
+#          cd ${{ github.event.repository.name }}-helm-civo
+#          echo "---------------------"
+#          ls
+#          echo "---------------------"
+#          git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
+#          git config --global init.defaultBranch main
+#          git init
+#          git add .
+#          git commit -m "init new helm repo"
+#          git branch -M main
+#          git remote add origin https://yabinboxes:${{ secrets.github-token }}@github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git
+#          git push -u origin main
+#          echo "---------------------"
+#          ls
+#          echo "---------------------"
+          
+      #     if repo already exist
       - name: repo already exist for working project
         if:  ${{ steps.validate-repo.outputs.EXIST_REPO }}
-        env:
-          GH_TOKEN: ${{ secrets.github-token }}
         run: |
           echo "already exist snow-monkeys-org/${{ github.event.repository.name }}-helm-civo"
-          
-
-#     if repo doesnt exist
-      - name: repo doesnt exist for working project
-        if:  ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
-        env:
-          GH_TOKEN: ${{ secrets.github-token }}
-        run: |
-          echo "doesnt exist snow-monkeys-org/${{ github.event.repository.name }}-helm-civo"
           git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
-          echo "cloning config repo helm-template"
-          git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/helm-template.git
-          echo "creating ${{ github.event.repository.name }}-helm-civo"
-          gh repo create snow-monkeys-org/${{ github.event.repository.name }}-helm-civo --private
-          mkdir ${{ github.event.repository.name }}-helm-civo
-          echo "---------------------"
-          ls
-          echo "---------------------"
-          cd helm-template
-          cp -R application.yaml repo-creds.yaml ../${{ github.event.repository.name }}-helm-civo/
-          cp -R myapp-helm ../${{ github.event.repository.name }}-helm-civo/myapp-helm/
-          cd ..
+          echo "cloning repo ${{ github.event.repository.name }}-helm-civo"
+          git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git
           cd ${{ github.event.repository.name }}-helm-civo
           echo "---------------------"
           ls
           echo "---------------------"
-          git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
-          git config --global init.defaultBranch main
-          git init
-          git add .
-          git commit -m "init new helm repo"
-          git branch -M main
-          git remote add origin https://yabinboxes:${{ secrets.github-token }}@github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git
-          git push -u origin main
+      
+      - name: modify application argocd and credentials
+        run: |
+          sed -i "s,name:.*,name:\ snow-monkeys-org/${{ github.event.repository.name }}-helm-civo," application.yaml
+          cat application.yaml
+          echo "---------------------"
           ls
-          
-          
+          echo "---------------------"
+      
+      #   notify  
+#      - name: connect to civo kubernetes
+#        if:  ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
+#        run: |
+#          curl -sL https://civo.com/get | sh
+#          civo apikey add my-cluster ${{ secrets.cloud-token }}
+#          civo kubernetes config k8s_demo_1 --save
+#          kubectl cluster-info
+#          kubectl apply -f repo-creds.yaml
+#          kubectl apply -f application.yaml
 
-#     if repo doesnt exist
-#      - name: repo doesnt exist for helm
-#     env:
-#     GH_TOKEN: ${{ secrets.github-token }}
-#     run: |
-#  echo repo already exist ${{ env.EXIST_REPO }}
-        
+#      - name: create new repo for civo
+#        run: |
+#          echo "----------------- prepare update cloning -----------------" 
+#          mkdir cloning${{ github.sha }}
+#          cd cloning${{ github.sha }}
+#          echo "promoting into dev environment"
+#          git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
+#          git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git
+#          cd ${{ github.event.repository.name }}-helm-civo
+#          echo "---------------------"
+#          ls
+#          echo "---------------------"
+#          echo "checkout main branch"
+#          git checkout main
+#          echo "updating image tag in values file"
+#          sed -i "s,tag:.*,tag:\ ${{ github.sha }}," myapp-helm/values.yaml
+#          git add . && git commit -m "update image tag"
+#          git push
