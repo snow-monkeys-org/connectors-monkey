@@ -136,13 +136,12 @@ jobs:
         run: |
           cd ${{ github.event.repository.name }}-helm-civo
           sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," application.yaml
-          sed -i "s/monkeyspecnamespace/${{ github.event.repository.name }}-helm-civo/" application.yaml
+          sed -i "s,monkeyspecnamespace,${{ github.event.repository.name }}-helm-civo," application.yaml
+          sed -i "s,monkeyrepourl,https://github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git," application.yaml
+          sed -i "s,monkeypath,/," application.yaml
+          sed -i "s,monkeyhosts,monkey1.connectorsapp.com," application.yaml
+          sed -i "s,monkeyrepository,gcr.io/google-samples/hello-app:1.0," application.yaml
           cat application.yaml
-#          sed -i "s,monkeyrepourl,https://github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git" application.yaml
-#          sed -i "s,monkeypath,/" application.yaml
-#          sed -i "s,monkeyhosts,monkey1.connectorsapp.com" application.yaml
-#          sed -i "s,monkeyrepository,gcr.io/google-samples/hello-app:1.0" application.yaml
-#          cat application.yaml
 #          echo "---------------------"
 #          ls
 #          echo "---------------------"
