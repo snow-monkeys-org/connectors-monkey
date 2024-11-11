@@ -141,7 +141,6 @@ jobs:
           sed -i "s,monkeypath,/" application.yaml
           sed -i "s,monkeyhosts,monkey1.connectorsapp.com" application.yaml
           sed -i "s,monkeyrepository,gcr.io/google-samples/hello-app:1.0" application.yaml
-          sed -i 
           cat application.yaml
           echo "---------------------"
           ls
