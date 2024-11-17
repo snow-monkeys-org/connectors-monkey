@@ -14,6 +14,10 @@ on:
       host: 
         required: false
         type: string
+        default: 'test.connectorsapp.com'
+      host-path: 
+        required: false
+        type: string
         default: '/'
     secrets:
       cloud-token:
