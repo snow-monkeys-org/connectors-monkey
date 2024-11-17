@@ -161,8 +161,8 @@ jobs:
           sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," myapp-helm/values.yaml
           sed -i "s,monkeyspecnamespace,${{ github.event.repository.name }}-helm-civo," myapp-helm/values.yaml
           sed -i "s,monkeyrepourl,https://github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git," myapp-helm/values.yaml
-          sed -i "s,monkeypath,/," myapp-helm/values.yaml
-          sed -i "s,monkeyhosts,monkey1.connectorsapp.com," myapp-helm/values.yaml
+          sed -i "s,monkeypath,${{ inputs.host-path }}," myapp-helm/values.yaml
+          sed -i "s,monkeyhosts,${{ inputs.host }}," myapp-helm/values.yaml
           sed -i "s,monkeyrepository,gcr.io/google-samples/hello-app:1.0," myapp-helm/values.yaml
           echo "---------------------"
           ls
