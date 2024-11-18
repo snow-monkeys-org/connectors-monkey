@@ -51,32 +51,32 @@ jobs:
 
 #     1. build repo with Dockerfile
       
-      - uses: actions/checkout@v4
+#      - uses: actions/checkout@v4
 
       
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+#      - name: Set up QEMU
+#        uses: docker/setup-qemu-action@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+#      - name: Set up Docker Buildx
+#        uses: docker/setup-buildx-action@v3
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.dockerhub_username }}
-          password: ${{ secrets.dockerhub_token }}
+#      - name: Login to Docker Hub
+#        uses: docker/login-action@v3
+#        with:
+#          username: ${{ secrets.dockerhub_username }}
+#          password: ${{ secrets.dockerhub_token }}
 
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          push: true
-          tags: yabinm/app:${{github.sha}}
+#      - name: Build and push
+#        uses: docker/build-push-action@v6
+#        with:
+#          push: true
+#          tags: yabinm/app:${{github.sha}}
 
-      - name: docker ps
-        run: |
-          docker image ls
-          docker ps
-          ls
+#      - name: docker ps
+#        run: |
+#          docker image ls
+#          docker ps
+#          ls
 
 #     2. check if project exist
       - name: clone and exec helm repo for the working project
@@ -135,24 +135,6 @@ jobs:
           echo "---------------------"
           ls
           echo "---------------------"
-      
-      - name: modify application argocd and credentials
-        run: |
-          cd ${{ github.event.repository.name }}-helm-civo
-          echo "---------insert into application.yaml------------"
-          sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," application.yaml
-          sed -i "s,monkeyspecnamespace,${{ github.event.repository.name }}-helm-civo," application.yaml
-          sed -i "s,monkeyrepourl,https://github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git," application.yaml
-          sed -i "s,monkeypath,${{ inputs.host-path }}," application.yaml
-          sed -i "s,monkeyhosts,${{ inputs.host }}," application.yaml
-          sed -i "s,monkeyrepository,gcr.io/google-samples/hello-app:1.0," application.yaml
-          echo "--------insert into creds-------------"
-          sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," repo-creds.yaml
-          sed -i "s,monkeyrepourl,https://github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git," repo-creds.yaml
-          sed -i "s,monkeypassword,${{ secrets.github-token }}," repo-creds.yaml
-          echo "---------------------"
-          ls
-          echo "---------------------"
 
       - name: modify values yaml
         run: |
@@ -164,37 +146,67 @@ jobs:
           sed -i "s,monkeypath,${{ inputs.host-path }}," myapp-helm/values.yaml
           sed -i "s,monkeyhosts,${{ inputs.host }}," myapp-helm/values.yaml
           sed -i "s,monkeyrepository,gcr.io/google-samples/hello-app:1.0," myapp-helm/values.yaml
+          cat myapp-helm/values.yaml
           echo "---------------------"
           ls
           echo "---------------------"
       
-      #   notify  
-      - name: connect to civo kubernetes
+      - name: modify application argocd and credentials
         if:  ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
         run: |
-          curl -sL https://civo.com/get | sh
-          civo apikey add my-cluster ${{ secrets.cloud-token }}
-          civo kubernetes config k8s_demo_1 --save
-          kubectl cluster-info
-          kubectl apply -f repo-creds.yaml
-          kubectl apply -f application.yaml
-      
-
-      - name: create new repo for civo
-        run: |
-          echo "----------------- prepare update cloning -----------------" 
-          mkdir cloning${{ github.sha }}
-          cd cloning${{ github.sha }}
-          echo "promoting into dev environment"
-          git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
-          git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git
           cd ${{ github.event.repository.name }}-helm-civo
+          echo "---------insert into application.yaml------------"
+          sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," application.yaml
+          sed -i "s,monkeyspecnamespace,${{ github.event.repository.name }}-helm-civo," application.yaml
+          sed -i "s,monkeyrepourl,https://github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git," application.yaml
+          sed -i "s,monkeypath,${{ inputs.host-path }}," application.yaml
+          sed -i "s,monkeyhosts,${{ inputs.host }}," application.yaml
+          sed -i "s,monkeyrepository,gcr.io/google-samples/hello-app:1.0," application.yaml
+          cat application.yaml
+          echo "--------insert into creds-------------"
+          sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," repo-creds.yaml
+          sed -i "s,monkeyrepourl,https://github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git," repo-creds.yaml
+          sed -i "s,monkeypassword,${{ secrets.github-token }}," repo-creds.yaml
+          cat repo-creds.yaml
+          echo "--------show values.yaml-------------"
+          cat myapp-helm/values.yaml
+          echo "commit main"
+          git checkout main
+          git add . && git commit -m "update deployment"
+          git push
           echo "---------------------"
           ls
           echo "---------------------"
-          echo "checkout main branch"
-          git checkout main
-          echo "updating image tag in values file"
-          sed -i "s,tag:.*,tag:\ ${{ github.sha }}," myapp-helm/values.yaml
-          git add . && git commit -m "update image tag"
-          git push
+
+      
+      
+      #   notify  
+#      - name: connect to civo kubernetes
+#        if:  ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
+#        run: |
+#          curl -sL https://civo.com/get | sh
+#          civo apikey add my-cluster ${{ secrets.cloud-token }}
+#          civo kubernetes config k8s_demo_1 --save
+#          kubectl cluster-info
+#          kubectl apply -f repo-creds.yaml
+#          kubectl apply -f application.yaml
+      
+
+#      - name: create new repo for civo
+#        run: |
+#          echo "----------------- prepare update cloning -----------------"
+#          mkdir cloning${{ github.sha }}
+#          cd cloning${{ github.sha }}
+#          echo "promoting into dev environment"
+#          git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
+#          git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git
+#          cd ${{ github.event.repository.name }}-helm-civo
+#          echo "---------------------"
+#          ls
+#          echo "---------------------"
+#          echo "checkout main branch"
+#          git checkout main
+#          echo "updating image tag in values file"
+#          sed -i "s,tag:.*,tag:\ ${{ github.sha }}," myapp-helm/values.yaml
+#          git add . && git commit -m "update image tag"
+#          git push
