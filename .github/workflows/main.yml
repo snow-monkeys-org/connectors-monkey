@@ -198,8 +198,6 @@ jobs:
           cat myapp-helm/values.yaml
           echo "---------------------"
           ls
-
-      
       
       #   notify  
       - name: connect to civo kubernetes
