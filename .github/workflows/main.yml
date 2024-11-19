@@ -173,6 +173,7 @@ jobs:
           cat application.yaml
           echo "--------insert into creds-------------"
           sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," repo-creds.yaml
+          sed -i "s,username:.*,username:\ yabinboxes," repo-creds.yaml
           sed -i "s,monkeyrepourl,https://github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git," repo-creds.yaml
           sed -i "s,monkeypassword,${{ secrets.github-token }}," repo-creds.yaml
           cat repo-creds.yaml
