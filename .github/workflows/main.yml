@@ -155,7 +155,7 @@ jobs:
           sed -i "s,host:.*,host:\ ${{ inputs.host }}," myapp-helm/values.yaml
           sed -i "s,path:.*,path:\ ${{ inputs.host-path }}," myapp-helm/values.yaml
           sed -i "/^httpGet:/,/path:/{/^\([[:space:]]*path: \).*/s//\1health/}" application.yaml
-          sed -i "s,repository:.*,repository:\ gcr.io/google-samples/hello-app:1.0," myapp-helm/values.yaml  
+          sed -i "s,repository:.*,repository:\ yabinm/app:${{github.sha}}," myapp-helm/values.yaml  
           cat myapp-helm/values.yaml
           echo "---------------------"
           ls
@@ -169,7 +169,7 @@ jobs:
           sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," application.yaml
           sed -i "/^spec:/,/namespace:/{/^\([[:space:]]*namespace: \).*/s//\1${{ github.event.repository.name }}-helm-civo/}" application.yaml
           sed -i "s,monkeyrepourl,https://github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git," application.yaml
-          sed -i "s,monkeyrepository,gcr.io/google-samples/hello-app:1.0," application.yaml
+          sed -i "s,monkeyrepository,yabinm/app:${{github.sha}}," application.yaml
           cat application.yaml
           echo "--------insert into creds-------------"
           sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," repo-creds.yaml
