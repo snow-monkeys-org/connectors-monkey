@@ -155,7 +155,7 @@ jobs:
           sed -i "s,host:.*,host:\ ${{ inputs.host }}," myapp-helm/values.yaml
           sed -i "s,path:.*,path:\ ${{ inputs.host-path }}," myapp-helm/values.yaml
           sed -i "/^httpGet:/,/path:/{/^\([[:space:]]*path: \).*/s//\1health/}" application.yaml
-          sed -i "s,repository:.*,repository:\ yabinm/app:${{github.sha}}," myapp-helm/values.yaml  
+          sed -i "s,repository:.*,repository:\ yabinm/app," myapp-helm/values.yaml  
           cat myapp-helm/values.yaml
           echo "---------------------"
           ls
@@ -195,7 +195,8 @@ jobs:
           sed -i "s,monkeyrepourl,https://github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git," myapp-helm/values.yaml
           sed -i "s,monkeypath,${{ inputs.host-path }}," myapp-helm/values.yaml
           sed -i "s,monkeyhosts,${{ inputs.host }}," myapp-helm/values.yaml
-          sed -i "s,monkeyrepository,gcr.io/google-samples/hello-app:1.0," myapp-helm/values.yaml
+          sed -i "s,monkeyrepository,yabinm/app," myapp-helm/values.yaml
+          sed -i "s,tag:.*,tag:\ ${{ github.sha }}," myapp-helm/values.yaml
           cat myapp-helm/values.yaml
           echo "---------------------"
           ls
