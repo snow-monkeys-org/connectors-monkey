@@ -231,6 +231,8 @@ jobs:
           echo "checkout main branch"
           git checkout main
           echo "updating image tag in values file"
-          sed -i "s,tag:.*,tag:\ ${{ github.sha }}," myapp-helm/values.yaml
           git add . && git commit -m "update image tag"
           git push
+          
+
+#         sed -i "s,tag:.*,tag:\ ${{ github.sha }}," myapp-helm/values.yaml
