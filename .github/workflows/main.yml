@@ -167,7 +167,6 @@ jobs:
           cd ${{ github.event.repository.name }}-helm-civo
           echo "---------insert into application.yaml------------"
           sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," application.yaml
-          sed -i "/^spec:/,/namespace:/{/^\([[:space:]]*namespace: \).*/s//\1${{ github.event.repository.name }}-helm-civo/}" application.yaml
           sed -i "s,monkeyrepourl,https://github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git," application.yaml
           sed -i "s,monkeyrepository,yabinm/app:${{github.sha}}," application.yaml
           cat application.yaml
@@ -184,6 +183,8 @@ jobs:
           echo "---------------------"
           ls
           echo "---------------------"
+
+#        sed -i "/^spec:/,/namespace:/{/^\([[:space:]]*namespace: \).*/s//\1${{ github.event.repository.name }}-helm-civo/}" application.yaml
           
       - name: modify values yaml
         run: |
