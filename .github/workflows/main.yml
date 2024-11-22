@@ -140,11 +140,11 @@ jobs:
         run: |
           cd ${{ github.event.repository.name }}-helm-civo
           echo "---------insert into Chart.yaml------------"
-          sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," myapp-helm/Chart.yaml
           cat myapp-helm/Chart.yaml
           echo "---------------------"
           ls
           echo "---------------------"
+#         sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," myapp-helm/Chart.yaml
 
       - name: modify values yaml
         run: |
