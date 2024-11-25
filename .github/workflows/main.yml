@@ -149,6 +149,7 @@ jobs:
           echo "---------------------"
 
       - name: modify Chart yaml
+        if:  ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
         run: |
           cd ${{ github.event.repository.name }}-helm-civo
           echo "---------display Chart.yaml------------"
