@@ -19,6 +19,18 @@ on:
         required: false
         type: string
         default: '/'
+      port:
+        required: false
+        type: string
+        default: '8080'
+      image:
+        required: false
+        type: string
+        default: ''
+      registry:
+        required: false
+        type: string
+        default: 'docker_hub'
     secrets:
       cloud-token:
         required: false
@@ -139,19 +151,19 @@ jobs:
       - name: modify Chart yaml
         run: |
           cd ${{ github.event.repository.name }}-helm-civo
-          echo "---------insert into Chart.yaml------------"
+          echo "---------display Chart.yaml------------"
           cat myapp-helm/Chart.yaml
           echo "---------------------"
           ls
           echo "---------------------"
-#         sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," myapp-helm/Chart.yaml
 
       - name: modify values yaml
         run: |
           cd ${{ github.event.repository.name }}-helm-civo
           echo "---------insert into values.yaml------------"
           sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," myapp-helm/values.yaml
-          sed -i "/^ingress:/,/enabled:/{/^\([[:space:]]*enabled: \).*/s//\1true/}" application.yaml
+          sed -i "s,repository:.*,repository:\ yabinm/app," myapp-helm/values.yaml
+          sed -i "/^service:/,/port:/{/^\([[:space:]]*port: \).*/s//\1${{ inputs.port }}/}" myapp-helm/values.yaml
           sed -i "s,host:.*,host:\ ${{ inputs.host }}," myapp-helm/values.yaml
           sed -i "s,path:.*,path:\ ${{ inputs.host-path }}," myapp-helm/values.yaml
           sed -i "/^httpGet:/,/path:/{/^\([[:space:]]*path: \).*/s//\1health/}" application.yaml
@@ -159,7 +171,6 @@ jobs:
           echo "---------------------"
           ls
           echo "---------------------"
-#         sed -i "s,repository:.*,repository:\ yabinm/app," myapp-helm/values.yaml
       
       - name: modify application argocd and credentials
         if:  ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
@@ -167,6 +178,7 @@ jobs:
           cd ${{ github.event.repository.name }}-helm-civo
           echo "---------insert into application.yaml------------"
           sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," application.yaml
+          sed -i "/^ingress:/,/enabled:/{/^\([[:space:]]*enabled: \).*/s//\1true/}" application.yaml
           sed -i "s,monkeyrepourl,https://github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git," application.yaml
           cat application.yaml
           echo "--------insert into creds-------------"
@@ -182,27 +194,8 @@ jobs:
           echo "---------------------"
           ls
           echo "---------------------"
-
-#         sed -i "s,monkeyrepository,yabinm/app:${{github.sha}}," application.yaml
-
-#        sed -i "/^spec:/,/namespace:/{/^\([[:space:]]*namespace: \).*/s//\1${{ github.event.repository.name }}-helm-civo/}" application.yaml
           
-      - name: modify values yaml
-        run: |
-          cd ${{ github.event.repository.name }}-helm-civo
-          echo "---------insert into values.yaml------------"
-          sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," myapp-helm/values.yaml
-          sed -i "/^ingress:/,/enabled:/{/^\([[:space:]]*enabled: \).*/s//\1true/}" application.yaml
-          sed -i "s,host:.*,host:\ ${{ inputs.host }}," myapp-helm/values.yaml
-          sed -i "s,path:.*,path:\ ${{ inputs.host-path }}," myapp-helm/values.yaml
-          sed -i "/^httpGet:/,/path:/{/^\([[:space:]]*path: \).*/s//\1health/}" application.yaml
-          cat myapp-helm/values.yaml
-          echo "---------------------"
-          ls
-          echo "---------------------"
-
-#         sed -i "s,repository:.*,repository:\ yabinm/app," myapp-helm/values.yaml
-      
+     
       #   notify  
       - name: connect to civo kubernetes
         if:  ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
@@ -225,6 +218,7 @@ jobs:
           git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
           git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git
           cd ${{ github.event.repository.name }}-helm-civo
+          sed -i "s,tag:.*,tag:\ ${{ github.sha }}," myapp-helm/values.yaml
           echo "---------------------"
           ls
           echo "---------------------"
@@ -234,5 +228,3 @@ jobs:
           git add . && git commit -m "update image tag"
           git push
           
-
-#         sed -i "s,tag:.*,tag:\ ${{ github.sha }}," myapp-helm/values.yaml
