@@ -116,7 +116,7 @@ jobs:
       - name: assign image empty
         id: assign-image
         run: |
-          if [[  ${{ inputs.image == '' ]]; then
+          if [[  ${{ inputs.image == '' }} ]]; then
             echo "IMAGE=${{ inputs.image }}" >> $GITHUB_OUTPUT
           else 
             echo "IMAGE=yabinm/app" >> $GITHUB_OUTPUT
