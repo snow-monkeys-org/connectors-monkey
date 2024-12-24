@@ -40,6 +40,8 @@ on:
         required: false
       dockerhub_token:
         required: false
+      db_token:
+        required: false
 
 jobs:      
   build-local:
@@ -54,6 +56,8 @@ jobs:
                   
   build-civo:
     runs-on: ubuntu-22.04
+    env:
+      POSTGRES_PASSWORD: db_token
     if: inputs.cloud-provider == 'civo'
 
     steps:      
