@@ -102,6 +102,7 @@ jobs:
         if:  ${{ inputs.image == '' && steps.validate-dockerfile.outputs.EXIST_DOCKERFILE == '' }}
         uses: iloveitaly/github-action-nixpacks@main
         with:
+          registry: docker.io
           push: true
           cache: true
           cache_tag: yabinm/app
