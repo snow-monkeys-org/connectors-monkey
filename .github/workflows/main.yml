@@ -119,8 +119,6 @@ jobs:
         uses: iloveitaly/github-action-nixpacks@main
         with:
           push: true
-          cache: true
-          cache_tag: ghcr.io/${{github.repository}}
           platforms: "linux/amd64,linux/arm64"
           tags: |
             ${{github.repository}}:${{github.sha}}
