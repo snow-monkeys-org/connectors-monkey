@@ -90,14 +90,22 @@ jobs:
           username: yabinboxes
           password: ${{ secrets.github-token }}
 
+      - name: assign image empty
+        id: assign-image
+        run: |
+          if [[  ${{ inputs.image != '' }} ]]; then
+            echo "IMAGE=${{ inputs.image }}" >> $GITHUB_OUTPUT
+          else 
+            echo "IMAGE=${{github.repository}}" >> $GITHUB_OUTPUT
+
       - name: Build and push
         if:  ${{ inputs.image == '' && steps.validate-dockerfile.outputs.EXIST_DOCKERFILE != '' }}
         uses: docker/build-push-action@v6
         with:
           push: true
           tags: |
-            yabinm/app:${{github.sha}}
-            yabinm/app:latest
+            ${{github.repository}}:${{github.sha}}
+            ${{github.repository}}:latest
 
       - name: Build and push Docker images with Nixpacks
         if:  ${{ inputs.image == '' && steps.validate-dockerfile.outputs.EXIST_DOCKERFILE == '' }}
@@ -105,11 +113,11 @@ jobs:
         with:
           push: true
           cache: true
-          cache_tag: yabinm/app
+          cache_tag: ghcr.io/${{github.repository}}
           platforms: "linux/amd64,linux/arm64"
           tags: |
-            yabinm/app:${{github.sha}}
-            yabinm/app:latest
+            ${{github.repository}}:${{github.sha}}
+            ${{github.repository}}:latest
 
       - name: docker ps
         if:  ${{ inputs.image == '' }}
@@ -117,14 +125,6 @@ jobs:
           docker image ls
           docker ps
           ls 
-
-      - name: assign image empty
-        id: assign-image
-        run: |
-          if [[  ${{ inputs.image != '' }} ]]; then
-            echo "IMAGE=${{ inputs.image }}" >> $GITHUB_OUTPUT
-          else 
-            echo "IMAGE=yabinm/app" >> $GITHUB_OUTPUT
 
 #     check if project exist
       - name: clone and exec helm repo for the working project
