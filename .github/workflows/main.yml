@@ -86,8 +86,9 @@ jobs:
         if:  ${{ inputs.image == '' }}
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.dockerhub_username }}
-          password: ${{ secrets.dockerhub_token }}
+          registry: ghcr.io
+          username: yabinboxes
+          password: ${{ secrets.github-token }}
 
       - name: Build and push
         if:  ${{ inputs.image == '' && steps.validate-dockerfile.outputs.EXIST_DOCKERFILE != '' }}
@@ -104,11 +105,11 @@ jobs:
         with:
           push: true
           cache: true
-          cache_tag: docker.io/yabinm/app
+          cache_tag: yabinm/app
           platforms: "linux/amd64,linux/arm64"
           tags: |
-            docker.io/yabinm/app:${{github.sha}}
-            docker.io/yabinm/app:latest
+            yabinm/app:${{github.sha}}
+            yabinm/app:latest
 
       - name: docker ps
         if:  ${{ inputs.image == '' }}
