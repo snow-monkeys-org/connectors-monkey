@@ -119,10 +119,10 @@ jobs:
         uses: iloveitaly/github-action-nixpacks@main
         with:
           push: true
-          platforms: "linux/amd64,linux/arm64"
+          platforms: "linux/amd64,linux/amd64/v2,linux/amd64/v3,linux/amd64/v4,linux/386,linux/arm64"
           tags: |
-            ${{github.repository}}:${{github.sha}}
-            ${{github.repository}}:latest
+             ghcr.io/${{ github.repository }}:${{github.sha}}
+             ghcr.io/${{ github.repository }}:latest
 
       - name: docker ps
         if:  ${{ inputs.image == '' }}
