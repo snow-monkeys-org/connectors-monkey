@@ -206,7 +206,7 @@ jobs:
           cd ${{ github.event.repository.name }}-helm-civo
           echo "---------insert into values.yaml------------"
           sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," myapp-helm/values.yaml
-          sed -i "s,repository:.*,repository:\ ghcr.io/{{ steps.assign-image.outputs.IMAGE }}," myapp-helm/values.yaml
+          sed -i "s,repository:.*,repository:\ ghcr.io/${{ steps.assign-image.outputs.IMAGE }}," myapp-helm/values.yaml
           sed -i "/^service:/,/port:/{/^\([[:space:]]*port: \).*/s//\1${{ inputs.port }}/}" myapp-helm/values.yaml
           sed -i "s,host:.*,host:\ ${{ inputs.host }}," myapp-helm/values.yaml
           sed -i "s,path:.*,path:\ ${{ inputs.host-path }}," myapp-helm/values.yaml
