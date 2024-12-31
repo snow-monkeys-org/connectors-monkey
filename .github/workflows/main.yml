@@ -118,6 +118,8 @@ jobs:
         if:  ${{ inputs.image == '' && steps.validate-dockerfile.outputs.EXIST_DOCKERFILE == '' }}
         uses: iloveitaly/github-action-nixpacks@main
         with:
+          cache: true
+          cache_tag: ghcr.io/${{ github.repository }}:latest
           push: true
           platforms: "linux/amd64,linux/arm64"
           tags: |
