@@ -56,93 +56,18 @@ jobs:
               
       - name: local condition
         run: | 
-          echo ${{ inputs.cloud-provider }}     
-                  
-  build-civo:
-    runs-on: ubuntu-22.04
-    env:
-      POSTGRES_PASSWORD: db_token
-    if: inputs.cloud-provider == 'civo'
+          echo ${{ inputs.cloud-provider }}  
 
+  build-civo-with-image:
+    runs-on: ubuntu-22.04
+    if: inputs.cloud-provider == 'civo' && inputs.image != ''
     steps:      
       - name: civo conditions
         run: |
           echo ${{ inputs.cloud-provider }}
 
-#     build repo with Dockerfile
-      
       - uses: actions/checkout@v4
 
-      - name: validate Dockerfile
-        id: validate-dockerfile
-        run: |
-          echo "EXIST_DOCKERFILE=$(find . -type -f -iname Dockerfile)" >> $GITHUB_OUTPUT
-
-      - name: Set up QEMU
-        if:  ${{ inputs.image == '' }}
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        if:  ${{ inputs.image == '' }}
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub
-        if:  ${{ inputs.image == '' }}
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: yabinboxes
-          password: ${{ secrets.github-token }}
-
-      
-#      - name: assign image empty
-#        id: assign-image
-#        run: |
-#          echo "IMAGE=${{ github.repository }}" >> $GITHUB_OUTPUT
-
-          
-      - name: assign image empty
-        id: assign-image
-        run: |
-          echo "-------------flags-------------"
-          echo ${{ steps.validate-dockerfile.outputs.EXIST_DOCKERFILE }}
-          echo ${{ inputs.image }}
-          echo "-------------end flags-------------"
-          if [[  ${{ inputs.image != '' }} ]]; then
-            echo "IMAGE=${{ inputs.image }}" >> $GITHUB_OUTPUT
-          else 
-            echo "IMAGE=${{ github.repository }}" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Build and push
-        if:  ${{ inputs.image == '' && steps.validate-dockerfile.outputs.EXIST_DOCKERFILE != '' }}
-        uses: docker/build-push-action@v6
-        with:
-          push: true
-          tags: |
-            ${{github.repository}}:${{github.sha}}
-            ${{github.repository}}:latest
-
-      - name: Build and push Docker images with Nixpacks
-        if:  ${{ inputs.image == '' && steps.validate-dockerfile.outputs.EXIST_DOCKERFILE == '' }}
-        uses: iloveitaly/github-action-nixpacks@main
-        with:
-          cache: true
-          cache_tag: ghcr.io/${{ github.repository }}:latest
-          push: true
-          platforms: "linux/amd64,linux/arm64"
-          tags: |
-             ghcr.io/${{ github.repository }}:${{github.sha}}
-             ghcr.io/${{ github.repository }}:latest
-
-      - name: docker ps
-        if:  ${{ inputs.image == '' }}
-        run: |
-          docker image ls
-          docker ps
-          ls 
-
-#     check if project exist
       - name: clone and exec helm repo for the working project
         id: validate-repo
         env:
@@ -150,9 +75,8 @@ jobs:
         run: |
           echo "EXIST_REPO=$(gh repo view snow-monkeys-org/${{ github.event.repository.name }}-helm-civo | tr '\n' ' ')" >> $GITHUB_OUTPUT
 
-#     if exist - clone & exec helm - with specific image
       - name: with image - update repo
-        if:  ${{ inputs.image != '' && steps.validate-repo.outputs.EXIST_REPO }}
+        if:  ${{ steps.validate-repo.outputs.EXIST_REPO }}
         run: |
           echo "----------------- prepare update cloning -----------------"
           mkdir cloning${{ github.sha }}
@@ -180,7 +104,7 @@ jobs:
           
 #     if repo doesnt exist - clone & exec helm - with specific image
       - name: with image - repo doesnt exist for working project - clone and exec helm repo for the working project
-        if:  ${{ inputs.image != '' && ! steps.validate-repo.outputs.EXIST_REPO }}
+        if:  ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
         env:
           GH_TOKEN: ${{ secrets.github-token }}
         run: |
@@ -236,10 +160,105 @@ jobs:
           echo "---------------------"
           ls
           echo "---------------------"
+      
+      - name: connect to civo kubernetes
+        if:  ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
+        run: |
+          cd ${{ github.event.repository.name }}-helm-civo
+          curl -sL https://civo.com/get | sh
+          civo apikey add my-cluster ${{ secrets.cloud-token }}
+          civo kubernetes config k8s_demo_1 --save
+          kubectl cluster-info
+          kubectl apply -f repo-creds.yaml
+          kubectl apply -f application.yaml
+      
+                  
+  build-civo:
+    runs-on: ubuntu-22.04
+    env:
+      POSTGRES_PASSWORD: db_token
+    if: inputs.cloud-provider == 'civo' && inputs.image == ''
+
+    steps:      
+      - name: civo conditions
+        run: |
+          echo ${{ inputs.cloud-provider }}
+
+#     build repo with Dockerfile
+      
+      - uses: actions/checkout@v4
+
+      - name: validate Dockerfile
+        id: validate-dockerfile
+        run: |
+          echo "EXIST_DOCKERFILE=$(find . -type -f -iname Dockerfile)" >> $GITHUB_OUTPUT
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: yabinboxes
+          password: ${{ secrets.github-token }}
+          
+      - name: assign image empty
+        id: assign-image
+        run: |
+          echo "-------------flags-------------"
+          echo ${{ steps.validate-dockerfile.outputs.EXIST_DOCKERFILE }}
+          echo ${{ inputs.image }}
+          echo "-------------end flags-------------"
+          if [[  ${{ inputs.image != '' }} ]]; then
+            echo "IMAGE=${{ inputs.image }}" >> $GITHUB_OUTPUT
+          else 
+            echo "IMAGE=${{ github.repository }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build and push
+        if:  ${{ steps.validate-dockerfile.outputs.EXIST_DOCKERFILE != '' }}
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: |
+            ${{github.repository}}:${{github.sha}}
+            ${{github.repository}}:latest
+
+      - name: Build and push Docker images with Nixpacks
+        if:  ${{ steps.validate-dockerfile.outputs.EXIST_DOCKERFILE == '' }}
+        uses: iloveitaly/github-action-nixpacks@main
+        with:
+          cache: true
+          cache_tag: ghcr.io/${{ github.repository }}:latest
+          push: true
+          platforms: "linux/amd64,linux/arm64"
+          tags: |
+             ghcr.io/${{ github.repository }}:${{github.sha}}
+             ghcr.io/${{ github.repository }}:latest
+
+      - name: docker ps
+        run: |
+          docker image ls
+          docker ps
+          ls 
+
+#     check if project exist
+      - name: clone and exec helm repo for the working project
+        id: validate-repo
+        env:
+          GH_TOKEN: ${{ secrets.github-token }}
+        run: |
+          echo "EXIST_REPO=$(gh repo view snow-monkeys-org/${{ github.event.repository.name }}-helm-civo | tr '\n' ' ')" >> $GITHUB_OUTPUT
+
+
 
 #     if repo doesnt exist - clone & exec helm
       - name: repo doesnt exist for working project - clone and exec helm repo for the working project
-        if:  ${{ inputs.image == '' && ! steps.validate-repo.outputs.EXIST_REPO }}
+        if:  ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
         env:
           GH_TOKEN: ${{ secrets.github-token }}
         run: |
@@ -275,7 +294,7 @@ jobs:
           
       #     if repo already exist
       - name: repo already exist for working project
-        if:  ${{ inputs.image == '' && steps.validate-repo.outputs.EXIST_REPO }}
+        if:  ${{ steps.validate-repo.outputs.EXIST_REPO }}
         run: |
           echo "already exist snow-monkeys-org/${{ github.event.repository.name }}-helm-civo"
           git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
@@ -287,7 +306,7 @@ jobs:
           echo "---------------------"
 
       - name: modify Chart yaml
-        if:  ${{ inputs.image == '' && ! steps.validate-repo.outputs.EXIST_REPO }}
+        if:  ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
         run: |
           cd ${{ github.event.repository.name }}-helm-civo
           echo "---------display Chart.yaml------------"
@@ -297,7 +316,6 @@ jobs:
           echo "---------------------"
 
       - name: modify values yaml
-        if:  ${{ inputs.image == '' }}
         run: |
           cd ${{ github.event.repository.name }}-helm-civo
           echo "---------insert into values.yaml------------"
@@ -313,7 +331,7 @@ jobs:
           echo "---------------------"
       
       - name: modify application argocd and credentials
-        if:  ${{ inputs.image == '' && ! steps.validate-repo.outputs.EXIST_REPO }}
+        if:  ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
         run: |
           cd ${{ github.event.repository.name }}-helm-civo
           echo "---------insert into application.yaml------------"
@@ -351,7 +369,7 @@ jobs:
       
 
       - name: create new repo for civo
-        if:  ${{ inputs.image == '' && steps.validate-repo.outputs.EXIST_REPO }}
+        if:  ${{ steps.validate-repo.outputs.EXIST_REPO }}
         run: |
           echo "----------------- prepare update cloning -----------------"
           mkdir cloning${{ github.sha }}
