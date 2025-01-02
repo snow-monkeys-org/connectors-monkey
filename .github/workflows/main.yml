@@ -27,6 +27,10 @@ on:
         required: false
         type: string
         default: ''
+      image-version:
+        required: false
+        type: string
+        default: ''
       registry:
         required: false
         type: string
@@ -163,6 +167,7 @@ jobs:
           echo "---------insert into values.yaml------------"
           sed -i "s,repository:.*,repository:\ ghcr.io/${{ steps.assign-image.outputs.IMAGE }}," myapp-helm/values.yaml
           sed -i "/^service:/,/port:/{/^\([[:space:]]*port: \).*/s//\1${{ inputs.port }}/}" myapp-helm/values.yaml
+          sed -i "s,tag:.*,tag:\ ${{ inputs.image-version }}," myapp-helm/values.yaml
           sed -i "s,host:.*,host:\ ${{ inputs.host }}," myapp-helm/values.yaml
           sed -i "s,path:.*,path:\ ${{ inputs.host-path }}," myapp-helm/values.yaml
           cat myapp-helm/values.yaml
@@ -201,6 +206,7 @@ jobs:
           sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," myapp-helm/values.yaml
           sed -i "s,repository:.*,repository:\ ghcr.io/${{ steps.assign-image.outputs.IMAGE }}," myapp-helm/values.yaml
           sed -i "/^service:/,/port:/{/^\([[:space:]]*port: \).*/s//\1${{ inputs.port }}/}" myapp-helm/values.yaml
+          sed -i "s,tag:.*,tag:\ ${{ inputs.image-version }}," myapp-helm/values.yaml
           sed -i "s,host:.*,host:\ ${{ inputs.host }}," myapp-helm/values.yaml
           sed -i "s,path:.*,path:\ ${{ inputs.host-path }}," myapp-helm/values.yaml
           cat myapp-helm/values.yaml
@@ -300,9 +306,7 @@ jobs:
           sed -i "/^service:/,/port:/{/^\([[:space:]]*port: \).*/s//\1${{ inputs.port }}/}" myapp-helm/values.yaml
           sed -i "s,host:.*,host:\ ${{ inputs.host }}," myapp-helm/values.yaml
           sed -i "s,path:.*,path:\ ${{ inputs.host-path }}," myapp-helm/values.yaml
-          if [[  ${{ inputs.image == '' }} ]]; then
-            sed -i "s,tag:.*,tag:\ ${{ github.sha }}," myapp-helm/values.yaml
-          fi
+          sed -i "s,tag:.*,tag:\ ${{ github.sha }}," myapp-helm/values.yaml
           cat myapp-helm/values.yaml
           echo "---------------------"
           ls
@@ -356,9 +360,7 @@ jobs:
           git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
           git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git
           cd ${{ github.event.repository.name }}-helm-civo
-          if [[  ${{ inputs.image == '' }} ]]; then
-            sed -i "s,tag:.*,tag:\ ${{ github.sha }}," myapp-helm/values.yaml
-          fi
+          sed -i "s,tag:.*,tag:\ ${{ github.sha }}," myapp-helm/values.yaml
           echo "---------------------"
           ls
           echo "---------------------"
