@@ -262,7 +262,7 @@ jobs:
       
 
       - name: create new repo for civo
-        if:  ${{ steps.validate-repo.outputs.EXIST_REPO }}
+        if:  ${{ inputs.image == '' && steps.validate-repo.outputs.EXIST_REPO }}
         run: |
           echo "----------------- prepare update cloning -----------------"
           mkdir cloning${{ github.sha }}
