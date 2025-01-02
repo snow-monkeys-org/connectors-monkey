@@ -100,6 +100,10 @@ jobs:
       - name: assign image empty
         id: assign-image
         run: |
+          echo "-------------flags-------------"
+          echo ${{ steps.validate-dockerfile.outputs.EXIST_DOCKERFILE }}
+          echo ${{ inputs.image }}
+          echo "-------------end flags-------------"
           if [[  ${{ inputs.image != '' }} ]]; then
             echo "IMAGE=${{ inputs.image }}" >> $GITHUB_OUTPUT
           else 
@@ -211,7 +215,9 @@ jobs:
           sed -i "/^service:/,/port:/{/^\([[:space:]]*port: \).*/s//\1${{ inputs.port }}/}" myapp-helm/values.yaml
           sed -i "s,host:.*,host:\ ${{ inputs.host }}," myapp-helm/values.yaml
           sed -i "s,path:.*,path:\ ${{ inputs.host-path }}," myapp-helm/values.yaml
-          sed -i "s,tag:.*,tag:\ ${{ github.sha }}," myapp-helm/values.yaml
+          if [[  ${{ inputs.image == '' }} ]]; then
+            sed -i "s,tag:.*,tag:\ ${{ github.sha }}," myapp-helm/values.yaml
+          fi
           cat myapp-helm/values.yaml
           echo "---------------------"
           ls
