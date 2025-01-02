@@ -270,7 +270,9 @@ jobs:
           git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
           git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git
           cd ${{ github.event.repository.name }}-helm-civo
-          sed -i "s,tag:.*,tag:\ ${{ github.sha }}," myapp-helm/values.yaml
+          if [[  ${{ inputs.image == '' }} ]]; then
+            sed -i "s,tag:.*,tag:\ ${{ github.sha }}," myapp-helm/values.yaml
+          fi
           echo "---------------------"
           ls
           echo "---------------------"
