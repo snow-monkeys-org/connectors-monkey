@@ -265,7 +265,7 @@ jobs:
           ls
           echo "---------------------"
           cd helm-template
-          cp -R application.yaml repo-creds.yaml ../${{ github.event.repository.name }}-helm-civo/
+          cp -R application.yaml repo-creds.yaml image-creds.yam ../${{ github.event.repository.name }}-helm-civo/
           cp -R myapp-helm ../${{ github.event.repository.name }}-helm-civo/myapp-helm/
           cd ..
           cd ${{ github.event.repository.name }}-helm-civo
@@ -359,6 +359,7 @@ jobs:
           civo kubernetes config k8s_demo_1 --save
           kubectl cluster-info
           kubectl apply -f repo-creds.yaml
+          kubectl apply -f image-creds.yaml
           kubectl apply -f application.yaml
       
 
