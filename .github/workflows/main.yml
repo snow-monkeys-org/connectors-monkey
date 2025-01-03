@@ -217,7 +217,6 @@ jobs:
         run: |
           echo "-------------flags-------------"
           echo ${{ steps.validate-dockerfile.outputs.EXIST_DOCKERFILE }}
-          echo ${{ inputs.image }}
           echo "-------------end flags-------------"
           echo "IMAGE=${{ github.repository }}" >> $GITHUB_OUTPUT
 
