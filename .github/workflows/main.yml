@@ -193,9 +193,9 @@ jobs:
         run: |
           if [ -e Dockerfile ] 
           then
-            echo "EXIST_DOCKERFILE=$('true')" >> $GITHUB_OUTPUT
+            echo "EXIST_DOCKERFILE='ok'" >> $GITHUB_OUTPUT
           else
-            echo "EXIST_DOCKERFILE=$('false')" >> $GITHUB_OUTPUT
+            echo "EXIST_DOCKERFILE='nok'" >> $GITHUB_OUTPUT
           fi
          
 
@@ -219,7 +219,7 @@ jobs:
           echo "-------------end flags-------------"
 
       - name: Build and push
-        if:  ${{ steps.validate-dockerfile.outputs.EXIST_DOCKERFILE == 'true' }}
+        if:  ${{ steps.validate-dockerfile.outputs.EXIST_DOCKERFILE == 'ok' }}
         uses: docker/build-push-action@v6
         with:
           push: true
@@ -228,7 +228,7 @@ jobs:
              ghcr.io/${{ github.repository }}:latest
 
       - name: Build and push Docker images with Nixpacks
-        if:  ${{ steps.validate-dockerfile.outputs.EXIST_DOCKERFILE == 'false' }}
+        if:  ${{ steps.validate-dockerfile.outputs.EXIST_DOCKERFILE == 'nok' }}
         uses: iloveitaly/github-action-nixpacks@main
         with:
           cache: true
