@@ -221,30 +221,22 @@ jobs:
         if:  contains(steps.validate-dockerfile.outputs.EXIST_DOCKERFILE, 'ok')
         uses: docker/build-push-action@v6
         with:
-          provenance: mode=max
           push: true
           tags: |
-             ghcr.io/${{ github.repository }}:${{github.sha}}
-             ghcr.io/${{ github.repository }}:latest
+             ghcr.io/${{ github.repository }}-img:${{github.sha}}
+             ghcr.io/${{ github.repository }}-img:latest
 
       - name: Build and push Docker images with Nixpacks
         if:  contains(steps.validate-dockerfile.outputs.EXIST_DOCKERFILE, 'dont')
         uses: iloveitaly/github-action-nixpacks@main
         with:
-          provenance: mode=max
           cache: true
           cache_tag: ghcr.io/${{ github.repository }}:latest
           push: true
           platforms: "linux/amd64,linux/arm64"
           tags: |
-             ghcr.io/${{ github.repository }}:${{github.sha}}
-             ghcr.io/${{ github.repository }}:latest
-
-      - name: docker ps
-        run: |
-          docker image ls
-          docker ps
-          ls 
+             ghcr.io/${{ github.repository }}-img:${{github.sha}}
+             ghcr.io/${{ github.repository }}-img:latest
 
 #     check if project exist
       - name: clone and exec helm repo for the working project
@@ -320,7 +312,7 @@ jobs:
           cd ${{ github.event.repository.name }}-helm-civo
           echo "---------insert into values.yaml------------"
           sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," myapp-helm/values.yaml
-          sed -i "s,repository:.*,repository:\ ghcr.io/${{ github.repository }}," myapp-helm/values.yaml
+          sed -i "s,repository:.*,repository:\ ghcr.io/${{ github.repository }}-img," myapp-helm/values.yaml
           sed -i "/^service:/,/port:/{/^\([[:space:]]*port: \).*/s//\1${{ inputs.port }}/}" myapp-helm/values.yaml
           sed -i "s,host:.*,host:\ ${{ inputs.host }}," myapp-helm/values.yaml
           sed -i "s,path:.*,path:\ ${{ inputs.host-path }}," myapp-helm/values.yaml
