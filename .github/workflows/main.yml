@@ -265,7 +265,7 @@ jobs:
           ls
           echo "---------------------"
           cd helm-template
-          cp -R application.yaml repo-creds.yaml image-creds.yam ../${{ github.event.repository.name }}-helm-civo/
+          cp -R application.yaml repo-creds.yaml image-creds.yaml ../${{ github.event.repository.name }}-helm-civo/
           cp -R myapp-helm ../${{ github.event.repository.name }}-helm-civo/myapp-helm/
           cd ..
           cd ${{ github.event.repository.name }}-helm-civo
