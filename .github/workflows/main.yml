@@ -218,8 +218,8 @@ jobs:
           echo "-------------end flags-------------"
 
       - name: Build and push
-        if:  -e Dockerfile
         uses: docker/build-push-action@v6
+        if:  ${{ steps.validate-dockerfile.outputs.EXIST_DOCKERFILE == 'ok' }}
         with:
           push: true
           tags: |
@@ -227,8 +227,8 @@ jobs:
              ghcr.io/${{ github.repository }}:latest
 
       - name: Build and push Docker images with Nixpacks
-        if:  ! -e Dockerfile
         uses: iloveitaly/github-action-nixpacks@main
+        if:  ${{ steps.validate-dockerfile.outputs.EXIST_DOCKERFILE == 'nok' }}
         with:
           cache: true
           cache_tag: ghcr.io/${{ github.repository }}:latest
