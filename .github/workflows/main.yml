@@ -191,7 +191,8 @@ jobs:
       - name: validate Dockerfile
         id: validate-dockerfile
         run: |
-          if [ -e Dockerfile ] then
+          if [ -e Dockerfile ] 
+          then
             echo "EXIST_DOCKERFILE=true" >> $GITHUB_OUTPUT
           else
             echo "EXIST_DOCKERFILE=false" >> $GITHUB_OUTPUT
