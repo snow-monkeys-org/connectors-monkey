@@ -227,8 +227,8 @@ jobs:
         with:
           push: true
           tags: |
-            ${{github.repository}}:${{github.sha}}
-            ${{github.repository}}:latest
+             ghcr.io/${{ github.repository }}:${{github.sha}}
+             ghcr.io/${{ github.repository }}:latestt
 
       - name: Build and push Docker images with Nixpacks
         if:  ${{ ! steps.validate-dockerfile.outputs.EXIST_DOCKERFILE }}
