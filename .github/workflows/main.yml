@@ -89,7 +89,7 @@ jobs:
           ls
           echo "---------------------"
           echo "---------insert into values.yaml------------"
-          sed -i "s,repository:.*,repository:\ ghcr.io/${{ steps.assign-image.outputs.IMAGE }}," myapp-helm/values.yaml
+          sed -i "s,repository:.*,repository:\ ghcr.io/${{ inputs.image }}," myapp-helm/values.yaml
           sed -i "/^service:/,/port:/{/^\([[:space:]]*port: \).*/s//\1${{ inputs.port }}/}" myapp-helm/values.yaml
           sed -i "s,tag:.*,tag:\ ${{ inputs.image-version }}," myapp-helm/values.yaml
           sed -i "s,host:.*,host:\ ${{ inputs.host }}," myapp-helm/values.yaml
@@ -128,7 +128,7 @@ jobs:
           echo "---------------------"
           echo "---------insert into values.yaml------------"
           sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," myapp-helm/values.yaml
-          sed -i "s,repository:.*,repository:\ ghcr.io/${{ steps.assign-image.outputs.IMAGE }}," myapp-helm/values.yaml
+          sed -i "s,repository:.*,repository:\ ghcr.io/${{ inputs.image }}," myapp-helm/values.yaml
           sed -i "/^service:/,/port:/{/^\([[:space:]]*port: \).*/s//\1${{ inputs.port }}/}" myapp-helm/values.yaml
           sed -i "s,tag:.*,tag:\ ${{ inputs.image-version }}," myapp-helm/values.yaml
           sed -i "s,host:.*,host:\ ${{ inputs.host }}," myapp-helm/values.yaml
