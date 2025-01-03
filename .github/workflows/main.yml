@@ -324,6 +324,7 @@ jobs:
           sed -i "s,path:.*,path:\ ${{ inputs.host-path }}," myapp-helm/values.yaml
           sed -i "s,tag:.*,tag:\ ${{ github.sha }}," myapp-helm/values.yaml
           sed -i "s,monkeypw,${{ secrets.github-token }}," myapp-helm/values.yaml
+          sed -i "/^imageCredentials:/,/username:/{/^\([[:space:]]*username: \).*/s//\1yabinboxes/}" myapp-helm/values.yaml
           cat myapp-helm/values.yaml
           echo "---------------------"
           ls
