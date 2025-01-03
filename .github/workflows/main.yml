@@ -221,6 +221,7 @@ jobs:
         if:  contains(steps.validate-dockerfile.outputs.EXIST_DOCKERFILE, 'ok')
         uses: docker/build-push-action@v6
         with:
+          provenance: mode=max
           push: true
           tags: |
              ghcr.io/${{ github.repository }}:${{github.sha}}
@@ -230,6 +231,7 @@ jobs:
         if:  contains(steps.validate-dockerfile.outputs.EXIST_DOCKERFILE, 'dont')
         uses: iloveitaly/github-action-nixpacks@main
         with:
+          provenance: mode=max
           cache: true
           cache_tag: ghcr.io/${{ github.repository }}:latest
           push: true
