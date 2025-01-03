@@ -195,7 +195,7 @@ jobs:
           then
             echo "EXIST_DOCKERFILE='ok'" >> $GITHUB_OUTPUT
           else
-            echo "EXIST_DOCKERFILE='nok'" >> $GITHUB_OUTPUT
+            echo "EXIST_DOCKERFILE='dont'" >> $GITHUB_OUTPUT
           fi
 
       - name: Set up QEMU
@@ -227,7 +227,7 @@ jobs:
              ghcr.io/${{ github.repository }}:latest
 
       - name: Build and push Docker images with Nixpacks
-        if:  contains(steps.validate-dockerfile.outputs.EXIST_DOCKERFILE, 'nok')
+        if:  contains(steps.validate-dockerfile.outputs.EXIST_DOCKERFILE, 'dont')
         uses: iloveitaly/github-action-nixpacks@main
         with:
           cache: true
