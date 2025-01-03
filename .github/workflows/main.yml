@@ -219,7 +219,7 @@ jobs:
 
       - name: Build and push
         uses: docker/build-push-action@v6
-        if:  ${{ steps.validate-dockerfile.outputs.EXIST_DOCKERFILE == 'ok' }}
+        if:  contains(steps.validate-dockerfile.outputs.EXIST_DOCKERFILE, 'ok')
         with:
           push: true
           tags: |
@@ -228,7 +228,7 @@ jobs:
 
       - name: Build and push Docker images with Nixpacks
         uses: iloveitaly/github-action-nixpacks@main
-        if:  ${{ steps.validate-dockerfile.outputs.EXIST_DOCKERFILE == 'nok' }}
+        if:  contains(steps.validate-dockerfile.outputs.EXIST_DOCKERFILE, 'nok')
         with:
           cache: true
           cache_tag: ghcr.io/${{ github.repository }}:latest
