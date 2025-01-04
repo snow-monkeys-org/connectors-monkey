@@ -31,6 +31,10 @@ on:
         required: false
         type: string
         default: ''
+      image-scope:
+        required: false
+        type: string
+        default: 'private'
       registry:
         required: false
         type: string
@@ -46,6 +50,11 @@ on:
         required: false
       db_token:
         required: false
+      image-username:
+        required: false
+      image-pwd:
+        required: false
+      
 
 jobs:      
   build-local:
