@@ -35,6 +35,10 @@ on:
         required: false
         type: string
         default: 'private'
+      build:
+        required: false
+        type: boolean
+        default: false
       registry:
         required: false
         type: string
@@ -67,9 +71,9 @@ jobs:
         run: | 
           echo ${{ inputs.cloud-provider }}
 
-  build-civo-with-private-image:
+  deploy-civo-with-private-image:
     runs-on: ubuntu-22.04
-    if: inputs.cloud-provider == 'civo' && inputs.image-scope == 'private'
+    if: inputs.cloud-provider == 'civo' && inputs.image-scope == 'private' && inputs.build == false
     steps:      
       - name: 1. civo conditions
         run: |
@@ -184,9 +188,9 @@ jobs:
           kubectl apply -f image-creds.yaml
           kubectl apply -f application.yaml
 
-  build-civo-with-image:
+  deploy-civo-with-public-image:
     runs-on: ubuntu-22.04
-    if: inputs.cloud-provider == 'civo' && inputs.image != ''  && inputs.image-scope == 'public'
+    if: inputs.cloud-provider == 'civo' && inputs.image != ''  && inputs.image-scope == 'public' && inputs.build == false
     steps:      
       - name: 1. civo conditions
         run: |
@@ -202,7 +206,7 @@ jobs:
           echo "EXIST_REPO=$(gh repo view snow-monkeys-org/${{ github.event.repository.name }}-helm-civo | tr '\n' ' ')" >> $GITHUB_OUTPUT
 
 #     condition if repository doesnt exist
-      - name: 3. with image - repo doesnt exist for working project - clone and exec helm repo for the working project
+      - name: 3. with public image - repo doesnt exist for working project - clone and exec helm repo for the working project
         if:  ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
         env:
           GH_TOKEN: ${{ secrets.github-token }}
@@ -260,7 +264,7 @@ jobs:
           ls
           echo "---------------------"
 
-      - name: with image - update repo
+      - name: 4. with public image - update repo
         if:  ${{ steps.validate-repo.outputs.EXIST_REPO }}
         run: |
           echo "----------------- prepare update cloning -----------------"
@@ -286,67 +290,8 @@ jobs:
           echo "updating image tag in values file"
           git add . && git commit -m "update image tag"
           git push
-          
-#     if repo doesnt exist - clone & exec helm - with specific image
-      - name: with image - repo doesnt exist for working project - clone and exec helm repo for the working project
-        if:  ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
-        env:
-          GH_TOKEN: ${{ secrets.github-token }}
-        run: |
-          echo "doesnt exist snow-monkeys-org/${{ github.event.repository.name }}-helm-civo"
-          git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
-          echo "cloning config repo helm-template"
-          git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/helm-template.git
-          echo "creating ${{ github.event.repository.name }}-helm-civo"
-          gh repo create snow-monkeys-org/${{ github.event.repository.name }}-helm-civo --private
-          mkdir ${{ github.event.repository.name }}-helm-civo
-          echo "---------------------"
-          ls
-          echo "---------------------"
-          cd helm-template
-          cp -R application.yaml repo-creds.yaml ../${{ github.event.repository.name }}-helm-civo/
-          cp -R myapp-helm ../${{ github.event.repository.name }}-helm-civo/myapp-helm/
-          cd ..
-          cd ${{ github.event.repository.name }}-helm-civo
-          echo "---------------------"
-          ls
-          echo "---------------------"
-          echo "---------insert into values.yaml------------"
-          sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," myapp-helm/values.yaml
-          sed -i "s,repository:.*,repository:\ ghcr.io/${{ inputs.image }}," myapp-helm/values.yaml
-          sed -i "/^service:/,/port:/{/^\([[:space:]]*port: \).*/s//\1${{ inputs.port }}/}" myapp-helm/values.yaml
-          sed -i "s,tag:.*,tag:\ ${{ inputs.image-version }}," myapp-helm/values.yaml
-          sed -i "s,host:.*,host:\ ${{ inputs.host }}," myapp-helm/values.yaml
-          sed -i "s,path:.*,path:\ ${{ inputs.host-path }}," myapp-helm/values.yaml
-          cat myapp-helm/values.yaml
-          echo "---------------------"
-          echo "---------insert into application.yaml------------"
-          sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," application.yaml
-          sed -i "/^httpGet:/,/path:/{/^\([[:space:]]*path: \).*/s//\1health/}" application.yaml
-          sed -i "/^ingress:/,/enabled:/{/^\([[:space:]]*enabled: \).*/s//\1true/}" application.yaml
-          sed -i "s,monkeyrepourl,https://github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git," application.yaml
-          cat application.yaml
-          echo "---------------------"
-          echo "--------insert into creds-------------"
-          sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," repo-creds.yaml
-          sed -i "s,username:.*,username:\ yabinboxes," repo-creds.yaml
-          sed -i "s,monkeyrepourl,https://github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git," repo-creds.yaml
-          sed -i "s,monkeypassword,${{ secrets.github-token }}," repo-creds.yaml
-          cat repo-creds.yaml
-          echo "---------------------"
-          git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
-          git config --global init.defaultBranch main
-          git init
-          git add .
-          git commit -m "init new helm repo"
-          git branch -M main
-          git remote add origin https://yabinboxes:${{ secrets.github-token }}@github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git
-          git push -u origin main
-          echo "---------------------"
-          ls
-          echo "---------------------"
-      
-      - name: connect to civo kubernetes
+                
+      - name: 5. connect to civo kubernetes
         if:  ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
         run: |
           cd ${{ github.event.repository.name }}-helm-civo
@@ -358,7 +303,7 @@ jobs:
           kubectl apply -f application.yaml
       
                   
-  build-civo:
+  build-civo-private-repo:
     runs-on: ubuntu-22.04
     env:
       POSTGRES_PASSWORD: db_token
