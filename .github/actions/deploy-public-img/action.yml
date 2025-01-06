@@ -45,9 +45,18 @@ runs:
         echo "---------------------"
         echo "EXIST_REPO=$(gh repo view snow-monkeys-org/${{ github.event.repository.name }}-helm-civo | tr '\n' ' ')" >> $GITHUB_OUTPUT
 
+    - name: 2. connect to civo kubernetes
+      if: ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
+      shell: sh
+      run: |
+        cd ${{ github.event.repository.name }}-helm-civo
+        curl -sL https://civo.com/get | sh
+        civo apikey add my-cluster ${{ secrets.cloud-token }}
+        civo kubernetes config k8s_demo_1 --save
+        kubectl cluster-info
 
     #     condition if repository doesnt exist
-    - name: 2. with public image - repo doesnt exist for working project - clone and exec helm repo for the working project
+    - name: 3. with public image - repo doesnt exist for working project - clone and exec helm repo for the working project
       if: ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
       shell: sh
       env:
@@ -105,9 +114,8 @@ runs:
         echo "---------------------"
         ls
         echo "---------------------"
-        
 
-    - name: 3. with public image - update repo
+    - name: 4. with public image - update repo
       if: ${{ steps.validate-repo.outputs.EXIST_REPO }}
       shell: sh
       run: |
@@ -135,14 +143,9 @@ runs:
         git add . && git commit -m "update image tag"
         git push
 
-    - name: 5. connect to civo kubernetes
+    - name: 5. apply to civo kubernetes
       if: ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
       shell: sh
       run: |
-        cd ${{ github.event.repository.name }}-helm-civo
-        curl -sL https://civo.com/get | sh
-        civo apikey add my-cluster ${{ secrets.cloud-token }}
-        civo kubernetes config k8s_demo_1 --save
-        kubectl cluster-info
         kubectl apply -f repo-creds.yaml
         kubectl apply -f application.yaml
