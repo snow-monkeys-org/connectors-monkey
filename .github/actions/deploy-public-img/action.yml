@@ -1,0 +1,145 @@
+name: Deploy public image
+description: Deploy public image
+
+inputs:
+  cloud-provider:
+    description: "cloud provider"
+    required: false
+  host:
+    required: false
+    description: 'test.connectorsapp.com'
+  host-path:
+    required: false
+    description: '/'
+  port:
+    required: false
+    description: '8080'
+  image:
+    required: false
+    description: ''
+  image-version:
+    required: false
+    description: ''
+  image-scope:
+    required: false
+    description: 'private'
+  build:
+    required: false
+    description: false
+  registry:
+    required: false
+    description: 'docker_hub'
+
+
+runs:
+  using: composite
+  steps:
+    - name: 1. clone and exec helm repo for the working project
+      id: validate-repo
+      shell: sh
+      env:
+        GH_TOKEN: ${{ secrets.github-token }}
+      run: |
+        echo "EXIST_REPO=$(gh repo view snow-monkeys-org/${{ github.event.repository.name }}-helm-civo | tr '\n' ' ')" >> $GITHUB_OUTPUT
+
+
+    #     condition if repository doesnt exist
+    - name: 2. with public image - repo doesnt exist for working project - clone and exec helm repo for the working project
+      if: ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
+      shell: sh
+      env:
+        GH_TOKEN: ${{ secrets.github-token }}
+      run: |
+        echo "doesnt exist snow-monkeys-org/${{ github.event.repository.name }}-helm-civo"
+        git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
+        echo "cloning config repo helm-template-public-img"
+        git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/helm-template-public-img.git
+        echo "creating ${{ github.event.repository.name }}-helm-civo"
+        gh repo create snow-monkeys-org/${{ github.event.repository.name }}-helm-civo --private
+        mkdir ${{ github.event.repository.name }}-helm-civo
+        echo "---------------------"
+        ls
+        echo "---------------------"
+        cd helm-template-public-img
+        cp -R application.yaml repo-creds.yaml ../${{ github.event.repository.name }}-helm-civo/
+        cp -R myapp-helm ../${{ github.event.repository.name }}-helm-civo/myapp-helm/
+        cd ..
+        cd ${{ github.event.repository.name }}-helm-civo
+        echo "---------------------"
+        ls
+        echo "---------------------"
+        echo "---------insert into values.yaml------------"
+        sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," myapp-helm/values.yaml
+        sed -i "s,repository:.*,repository:\ ${{ inputs.image }}," myapp-helm/values.yaml
+        sed -i "/^service:/,/port:/{/^\([[:space:]]*port: \).*/s//\1${{ inputs.port }}/}" myapp-helm/values.yaml
+        sed -i "s,tag:.*,tag:\ ${{ inputs.image-version }}," myapp-helm/values.yaml
+        sed -i "s,host:.*,host:\ ${{ inputs.host }}," myapp-helm/values.yaml
+        sed -i "s,path:.*,path:\ ${{ inputs.host-path }}," myapp-helm/values.yaml
+        cat myapp-helm/values.yaml
+        echo "---------------------"
+        echo "---------insert into application.yaml------------"
+        sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," application.yaml
+        sed -i "/^httpGet:/,/path:/{/^\([[:space:]]*path: \).*/s//\1health/}" application.yaml
+        sed -i "/^ingress:/,/enabled:/{/^\([[:space:]]*enabled: \).*/s//\1true/}" application.yaml
+        sed -i "s,monkeyrepourl,https://github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git," application.yaml
+        cat application.yaml
+        echo "---------------------"
+        echo "--------insert into creds-------------"
+        sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," repo-creds.yaml
+        sed -i "s,username:.*,username:\ yabinboxes," repo-creds.yaml
+        sed -i "s,monkeyrepourl,https://github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git," repo-creds.yaml
+        sed -i "s,monkeypassword,${{ secrets.github-token }}," repo-creds.yaml
+        cat repo-creds.yaml
+        echo "---------------------"
+        git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
+        git config --global init.defaultBranch main
+        git init
+        git add .
+        git commit -m "init new helm repo"
+        git branch -M main
+        git remote add origin https://yabinboxes:${{ secrets.github-token }}@github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git
+        git push -u origin main
+        echo "---------------------"
+        ls
+        echo "---------------------"
+        
+
+    - name: 3. with public image - update repo
+      if: ${{ steps.validate-repo.outputs.EXIST_REPO }}
+      shell: sh
+      run: |
+        echo "----------------- prepare update cloning -----------------"
+        mkdir cloning${{ github.sha }}
+        cd cloning${{ github.sha }}
+        echo "promoting into dev environment"
+        git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
+        git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git
+        cd ${{ github.event.repository.name }}-helm-civo
+        echo "---------------------"
+        ls
+        echo "---------------------"
+        echo "---------insert into values.yaml------------"
+        sed -i "s,repository:.*,repository:\ ${{ inputs.image }}," myapp-helm/values.yaml
+        sed -i "/^service:/,/port:/{/^\([[:space:]]*port: \).*/s//\1${{ inputs.port }}/}" myapp-helm/values.yaml
+        sed -i "s,tag:.*,tag:\ ${{ inputs.image-version }}," myapp-helm/values.yaml
+        sed -i "s,host:.*,host:\ ${{ inputs.host }}," myapp-helm/values.yaml
+        sed -i "s,path:.*,path:\ ${{ inputs.host-path }}," myapp-helm/values.yaml
+        cat myapp-helm/values.yaml
+        echo "---------------------"
+        echo "checkout main branch"
+        git checkout main
+        echo "updating image tag in values file"
+        git add . && git commit -m "update image tag"
+        git push
+
+    - name: 5. connect to civo kubernetes
+      if: ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
+      shell: sh
+      run: |
+        cd ${{ github.event.repository.name }}-helm-civo
+        curl -sL https://civo.com/get | sh
+        civo apikey add my-cluster ${{ secrets.cloud-token }}
+        civo kubernetes config k8s_demo_1 --save
+        kubectl cluster-info
+        kubectl apply -f repo-creds.yaml
+        kubectl apply -f application.yaml
