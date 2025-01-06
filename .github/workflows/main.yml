@@ -301,6 +301,17 @@ jobs:
           kubectl cluster-info
           kubectl apply -f repo-creds.yaml
           kubectl apply -f application.yaml
+  
+  build-civo-public-repo:
+    runs-on: ubuntu-22.04
+    env:
+      POSTGRES_PASSWORD: db_token
+    if: inputs.cloud-provider == 'civo' && inputs.image == '' && inputs.image-scope == 'public' && inputs.build == true
+
+    steps:      
+      - name: 1. civo conditions
+        run: |
+          echo ${{ inputs.cloud-provider }}
       
                   
   build-civo-private-repo:
