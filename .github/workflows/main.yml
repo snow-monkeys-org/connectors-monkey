@@ -201,7 +201,7 @@ jobs:
       - name: list files
         run: |
           echo "----------in deploy-civo-with-public-image -----------"
-          ls
+          ls -la
           echo "---------------------"
 
       - uses: ./.github/actions/deploy-public-img
