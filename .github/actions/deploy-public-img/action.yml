@@ -40,6 +40,9 @@ runs:
       env:
         GH_TOKEN: ${{ secrets.github-token }}
       run: |
+        echo "----------in action.yml in deploy-public-img -----------"
+        ls
+        echo "---------------------"
         echo "EXIST_REPO=$(gh repo view snow-monkeys-org/${{ github.event.repository.name }}-helm-civo | tr '\n' ' ')" >> $GITHUB_OUTPUT
 
 
