@@ -204,7 +204,7 @@ jobs:
           ls
           echo "---------------------"
 
-      - uses: ../.github/actions/deploy-public-img
+      - uses: ./.github/actions/deploy-public-img
         with:
           image: ${{ inputs.image }}
           port: ${{ inputs.port }}
