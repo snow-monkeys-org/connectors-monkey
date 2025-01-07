@@ -32,7 +32,7 @@ inputs:
 
 
 runs:
-  using: composite
+  using: 'composite'
   steps:
     - name: 1. clone and exec helm repo for the working project
       id: validate-repo
