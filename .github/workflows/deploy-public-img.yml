@@ -89,7 +89,6 @@ jobs:
       - name: 2. connect to civo kubernetes
         if: ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
         run: |
-          cd ${{ github.event.repository.name }}-helm-civo
           curl -sL https://civo.com/get | sh
           civo apikey add my-cluster ${{ secrets.cloud-token }}
           civo kubernetes config k8s_demo_1 --save
@@ -184,5 +183,6 @@ jobs:
       - name: 5. apply to civo kubernetes
         if: ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
         run: |
+          cd ${{ github.event.repository.name }}-helm-civo
           kubectl apply -f repo-creds.yaml
           kubectl apply -f application.yaml
