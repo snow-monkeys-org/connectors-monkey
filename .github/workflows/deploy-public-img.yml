@@ -1,42 +1,55 @@
 name: Deploy public image
-description: Deploy public image
 
-inputs:
-  cloud-provider:
-    description: "cloud provider"
-    required: false
-  host:
-    required: false
-    description: 'test.connectorsapp.com'
-  host-path:
-    required: false
-    description: '/'
-  port:
-    required: false
-    description: '8080'
-  image:
-    required: false
-    description: ''
-  image-version:
-    required: false
-    description: ''
-  image-scope:
-    required: false
-    description: 'private'
-  build:
-    required: false
-    description: false
-  registry:
-    required: false
-    description: 'docker_hub'
+on:
+  workflow_call:
+    inputs:
+      cloud-provider:
+        required: false
+        type: string
+        default: local
+      metadata:
+        required: false
+        type: string
+        default: "[ orphan ]"
+      host:
+        required: false
+        type: string
+        default: 'test.connectorsapp.com'
+      host-path:
+        required: false
+        type: string
+        default: '/'
+      port:
+        required: false
+        type: string
+        default: '8080'
+      image:
+        required: false
+        type: string
+        default: ''
+      image-version:
+        required: false
+        type: string
+        default: ''
+      image-scope:
+        required: false
+        type: string
+        default: 'private'
+      build:
+        required: false
+        type: boolean
+        default: false
+      registry:
+        required: false
+        type: string
+        default: 'docker_hub'
 
 
 runs:
-  using: 'composite'
+
   steps:
     - name: 1. clone and exec helm repo for the working project
       id: validate-repo
-      shell: sh
       env:
         GH_TOKEN: ${{ secrets.github-token }}
       run: |
@@ -47,7 +60,6 @@ runs:
 
     - name: 2. connect to civo kubernetes
       if: ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
-      shell: sh
       run: |
         cd ${{ github.event.repository.name }}-helm-civo
         curl -sL https://civo.com/get | sh
@@ -58,7 +70,6 @@ runs:
     #     condition if repository doesnt exist
     - name: 3. with public image - repo doesnt exist for working project - clone and exec helm repo for the working project
       if: ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
-      shell: sh
       env:
         GH_TOKEN: ${{ secrets.github-token }}
       run: |
@@ -117,7 +128,6 @@ runs:
 
     - name: 4. with public image - update repo
       if: ${{ steps.validate-repo.outputs.EXIST_REPO }}
-      shell: sh
       run: |
         echo "----------------- prepare update cloning -----------------"
         mkdir cloning${{ github.sha }}
@@ -145,7 +155,6 @@ runs:
 
     - name: 5. apply to civo kubernetes
       if: ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
-      shell: sh
       run: |
         kubectl apply -f repo-creds.yaml
         kubectl apply -f application.yaml

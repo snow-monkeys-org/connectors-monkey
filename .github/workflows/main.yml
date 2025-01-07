@@ -205,7 +205,7 @@ jobs:
           echo "---------------------"
 
       - name: call deploy public image
-        uses: ./.github/actions/deploy-public-img
+        uses: ./.github/workflows/deploy-public-img.yml@main
         with:
           image: ${{ inputs.image }}
           port: ${{ inputs.port }}
