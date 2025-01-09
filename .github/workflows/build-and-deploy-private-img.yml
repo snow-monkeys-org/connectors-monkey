@@ -157,8 +157,8 @@ jobs:
           ls
           echo "---------------------"
           echo "---------insert into secret.yaml------------"
-          echo ${{ steps.image-pwd.outputs.IMAGE_PWD }}
           sed -i "s,monkeybase64pwd,${{ steps.image-pwd.outputs.IMAGE_PWD }}," secret.yaml
+          cat secret.yaml
           echo "---------------------"
           echo "---------insert into values.yaml------------"
           sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," myapp-helm/values.yaml
