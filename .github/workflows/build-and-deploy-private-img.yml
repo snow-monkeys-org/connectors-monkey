@@ -101,125 +101,131 @@ jobs:
           username: ${{ secrets.dockerhub_username }}
           password: ${{ secrets.dockerhub_token }}
 
-      - name: 7. Print exist Dockerfile
+      - name: 7. Get private image pwd
+        id: image-pwd
         run: |
           echo "-------------docker config-------------"
-          cat ~/.docker/config.json | base64 -w 0
+          echo "IMAGE_PWD=$(cat ~/.docker/config.json | base64 -w 0)" >> $GITHUB_OUTPUT
           echo "-------------end docker config-------------"
           echo "-------------flags-------------"
           echo ${{ steps.validate-dockerfile.outputs.EXIST_DOCKERFILE }}
           echo "-------------end flags-------------"
 
-#      - name: 8. Build and push
-#        if: contains(steps.validate-dockerfile.outputs.EXIST_DOCKERFILE, 'ok')
-#        uses: docker/build-push-action@v6
-#        with:
-#          push: true
-#          tags: |
-#            yabinm/${{ github.event.repository.name }}-img:${{github.sha}}
-#            yabinm/${{ github.event.repository.name }}-img:latest
+      - name: 8. Build and push
+        if: contains(steps.validate-dockerfile.outputs.EXIST_DOCKERFILE, 'ok')
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: |
+            yabinm/${{ github.event.repository.name }}-img:${{github.sha}}
+            yabinm/${{ github.event.repository.name }}-img:latest
 
-#      - name: 9. Build and push Docker images with Nixpacks
-#        if: contains(steps.validate-dockerfile.outputs.EXIST_DOCKERFILE, 'dont')
-#        uses: iloveitaly/github-action-nixpacks@main
-#        with:
-#          cache: true
-#          cache_tag: docker.io/yabinm/${{ github.event.repository.name }}-img:latest
-#          push: true
-#          platforms: "linux/amd64,linux/arm64"
-#          tags: |
-#            docker.io/yabinm/${{ github.event.repository.name }}-img:${{github.sha}}
-#            docker.io/yabinm/${{ github.event.repository.name }}-img:latest
+      - name: 9. Build and push Docker images with Nixpacks
+        if: contains(steps.validate-dockerfile.outputs.EXIST_DOCKERFILE, 'dont')
+        uses: iloveitaly/github-action-nixpacks@main
+        with:
+          cache: true
+          cache_tag: docker.io/yabinm/${{ github.event.repository.name }}-img:latest
+          push: true
+          platforms: "linux/amd64,linux/arm64"
+          tags: |
+            docker.io/yabinm/${{ github.event.repository.name }}-img:${{github.sha}}
+            docker.io/yabinm/${{ github.event.repository.name }}-img:latest
 
       #     condition if repository doesnt exist
-#      - name: 10. with private image - repo doesnt exist for working project - clone and exec helm repo for the working project
-#        if: ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
-#        env:
-#          GH_TOKEN: ${{ secrets.github-token }}
-#        run: |
-#          echo "doesnt exist snow-monkeys-org/${{ github.event.repository.name }}-helm-civo"
-#          git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
-#          echo "cloning config repo helm-template-private-img"
-#          git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/helm-template-private-img.git
-#          echo "creating ${{ github.event.repository.name }}-helm-civo"
-#          gh repo create snow-monkeys-org/${{ github.event.repository.name }}-helm-civo --private
-#          mkdir ${{ github.event.repository.name }}-helm-civo
-#          echo "---------------------"
-#          ls
-#          echo "---------------------"
-#          cd helm-template-private-img
-#          cp -R application.yaml repo-creds.yaml ../${{ github.event.repository.name }}-helm-civo/
-#          cp -R myapp-helm ../${{ github.event.repository.name }}-helm-civo/myapp-helm/
-#          cd ..
-#          cd ${{ github.event.repository.name }}-helm-civo
-#          echo "---------------------"
-#          ls
-#          echo "---------------------"
-#          echo "---------insert into values.yaml------------"
-#          sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," myapp-helm/values.yaml
-#          sed -i "s,repository:.*,repository:\ docker.io/yabinm/${{ github.event.repository.name }}-img," myapp-helm/values.yaml
-#          sed -i "/^service:/,/port:/{/^\([[:space:]]*port: \).*/s//\1${{ inputs.port }}/}" myapp-helm/values.yaml
-#          sed -i "s,tag:.*,tag:\ ${{github.sha}}," myapp-helm/values.yaml
-#          sed -i "s,host:.*,host:\ ${{ inputs.host }}," myapp-helm/values.yaml
-#          sed -i "s,path:.*,path:\ ${{ inputs.host-path }}," myapp-helm/values.yaml
-#          cat myapp-helm/values.yaml
-#          echo "---------------------"
-#          echo "---------insert into application.yaml------------"
-#          sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," application.yaml
-#          sed -i "/^httpGet:/,/path:/{/^\([[:space:]]*path: \).*/s//\1health/}" application.yaml
-#          sed -i "/^ingress:/,/enabled:/{/^\([[:space:]]*enabled: \).*/s//\1true/}" application.yaml
-#          sed -i "s,monkeyrepourl,https://github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git," application.yaml
-#          cat application.yaml
-#          echo "---------------------"
-#          echo "--------insert into creds-------------"
-#          sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," repo-creds.yaml
-#          sed -i "s,username:.*,username:\ yabinboxes," repo-creds.yaml
-#          sed -i "s,monkeyrepourl,https://github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git," repo-creds.yaml
-#          sed -i "s,monkeypassword,${{ secrets.github-token }}," repo-creds.yaml
-#          cat repo-creds.yaml
-#          echo "---------------------"
-#          git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
-#          git config --global init.defaultBranch main
-#          git init
-#          git add .
-#          git commit -m "init new helm repo"
-#          git branch -M main
-#          git remote add origin https://yabinboxes:${{ secrets.github-token }}@github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git
-#          git push -u origin main
-#          echo "---------------------"
-#          ls
-#          echo "---------------------"
+      - name: 10. with private image - repo doesnt exist for working project - clone and exec helm repo for the working project
+        if: ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
+        env:
+          GH_TOKEN: ${{ secrets.github-token }}
+        run: |
+          echo "doesnt exist snow-monkeys-org/${{ github.event.repository.name }}-helm-civo"
+          git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
+          echo "cloning config repo helm-template-private-img"
+          git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/helm-template-private-img.git
+          echo "creating ${{ github.event.repository.name }}-helm-civo"
+          gh repo create snow-monkeys-org/${{ github.event.repository.name }}-helm-civo --private
+          mkdir ${{ github.event.repository.name }}-helm-civo
+          echo "---------------------"
+          ls
+          echo "---------------------"
+          cd helm-template-private-img
+          cp -R application.yaml repo-creds.yaml secret.yaml ../${{ github.event.repository.name }}-helm-civo/
+          cp -R myapp-helm ../${{ github.event.repository.name }}-helm-civo/myapp-helm/
+          cd ..
+          cd ${{ github.event.repository.name }}-helm-civo
+          echo "---------------------"
+          ls
+          echo "---------------------"
+          echo "---------insert into secret.yaml------------"
+          echo ${{ steps.image-pwd.outputs.IMAGE_PWD }}
+          sed -i "s,monkeybase64pwd,${{ steps.image-pwd.outputs.IMAGE_PWD }}," secret.yaml
+          echo "---------------------"
+          echo "---------insert into values.yaml------------"
+          sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," myapp-helm/values.yaml
+          sed -i "s,repository:.*,repository:\ docker.io/yabinm/${{ github.event.repository.name }}-img," myapp-helm/values.yaml
+          sed -i "/^service:/,/port:/{/^\([[:space:]]*port: \).*/s//\1${{ inputs.port }}/}" myapp-helm/values.yaml
+          sed -i "s,tag:.*,tag:\ ${{github.sha}}," myapp-helm/values.yaml
+          sed -i "s,host:.*,host:\ ${{ inputs.host }}," myapp-helm/values.yaml
+          sed -i "s,path:.*,path:\ ${{ inputs.host-path }}," myapp-helm/values.yaml
+          cat myapp-helm/values.yaml
+          echo "---------------------"
+          echo "---------insert into application.yaml------------"
+          sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," application.yaml
+          sed -i "/^httpGet:/,/path:/{/^\([[:space:]]*path: \).*/s//\1health/}" application.yaml
+          sed -i "/^ingress:/,/enabled:/{/^\([[:space:]]*enabled: \).*/s//\1true/}" application.yaml
+          sed -i "s,monkeyrepourl,https://github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git," application.yaml
+          cat application.yaml
+          echo "---------------------"
+          echo "--------insert into creds-------------"
+          sed -i "s,name:.*,name:\ ${{ github.event.repository.name }}-helm-civo," repo-creds.yaml
+          sed -i "s,username:.*,username:\ yabinboxes," repo-creds.yaml
+          sed -i "s,monkeyrepourl,https://github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git," repo-creds.yaml
+          sed -i "s,monkeypassword,${{ secrets.github-token }}," repo-creds.yaml
+          cat repo-creds.yaml
+          echo "---------------------"
+          git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
+          git config --global init.defaultBranch main
+          git init
+          git add .
+          git commit -m "init new helm repo"
+          git branch -M main
+          git remote add origin https://yabinboxes:${{ secrets.github-token }}@github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git
+          git push -u origin main
+          echo "---------------------"
+          ls
+          echo "---------------------"
 
-#      - name: 11. with private image - update repo
-#        if: ${{ steps.validate-repo.outputs.EXIST_REPO }}
-#        run: |
-#          echo "----------------- prepare update cloning -----------------"
-#          mkdir cloning${{ github.sha }}
-#          cd cloning${{ github.sha }}
-#          echo "promoting into dev environment"
-#          git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
-#          git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git
-#          cd ${{ github.event.repository.name }}-helm-civo
-#          echo "---------------------"
-#          ls
-#          echo "---------------------"
-#          echo "---------insert into values.yaml------------"
-#          sed -i "s,repository:.*,repository:\ docker.io/yabinm/${{ github.event.repository.name }}-img," myapp-helm/values.yaml
-#          sed -i "/^service:/,/port:/{/^\([[:space:]]*port: \).*/s//\1${{ inputs.port }}/}" myapp-helm/values.yaml
-#          sed -i "s,tag:.*,tag:\ ${{github.sha}}," myapp-helm/values.yaml
-#          sed -i "s,host:.*,host:\ ${{ inputs.host }}," myapp-helm/values.yaml
-#          sed -i "s,path:.*,path:\ ${{ inputs.host-path }}," myapp-helm/values.yaml
-#          cat myapp-helm/values.yaml
-#          echo "---------------------"
-#          echo "checkout main branch"
-#          git checkout main
-#          echo "updating image tag in values file"
-#          git add . && git commit -m "update image tag"
-#          git push
+      - name: 11. with private image - update repo
+        if: ${{ steps.validate-repo.outputs.EXIST_REPO }}
+        run: |
+          echo "----------------- prepare update cloning -----------------"
+          mkdir cloning${{ github.sha }}
+          cd cloning${{ github.sha }}
+          echo "promoting into dev environment"
+          git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
+          git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/${{ github.event.repository.name }}-helm-civo.git
+          cd ${{ github.event.repository.name }}-helm-civo
+          echo "---------------------"
+          ls
+          echo "---------------------"
+          echo "---------insert into values.yaml------------"
+          sed -i "s,repository:.*,repository:\ docker.io/yabinm/${{ github.event.repository.name }}-img," myapp-helm/values.yaml
+          sed -i "/^service:/,/port:/{/^\([[:space:]]*port: \).*/s//\1${{ inputs.port }}/}" myapp-helm/values.yaml
+          sed -i "s,tag:.*,tag:\ ${{github.sha}}," myapp-helm/values.yaml
+          sed -i "s,host:.*,host:\ ${{ inputs.host }}," myapp-helm/values.yaml
+          sed -i "s,path:.*,path:\ ${{ inputs.host-path }}," myapp-helm/values.yaml
+          cat myapp-helm/values.yaml
+          echo "---------------------"
+          echo "checkout main branch"
+          git checkout main
+          echo "updating image tag in values file"
+          git add . && git commit -m "update image tag"
+          git push
 
-#      - name: 5. apply to civo kubernetes
-#        if: ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
-#        run: |
-#          cd ${{ github.event.repository.name }}-helm-civo
-#          kubectl apply -f repo-creds.yaml
-#          kubectl apply -f application.yaml
+      - name: 5. apply to civo kubernetes
+        if: ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
+        run: |
+          cd ${{ github.event.repository.name }}-helm-civo
+          kubectl create -f secret.yaml
+          kubectl apply -f repo-creds.yaml
+          kubectl apply -f application.yaml
