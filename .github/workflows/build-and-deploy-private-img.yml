@@ -225,6 +225,6 @@ jobs:
         if: ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
         run: |
           cd ${{ github.event.repository.name }}-helm-civo
-          kubectl create -f secret.yaml
+          kubectl apply -f secret.yaml
           kubectl apply -f repo-creds.yaml
           kubectl apply -f application.yaml
