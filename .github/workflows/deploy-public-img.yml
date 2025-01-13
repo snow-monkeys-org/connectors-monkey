@@ -191,6 +191,7 @@ jobs:
         run: |
           echo "------ create new deployment record ------"
           curl -X POST \
+          -H "Content-Type: application/json" \
           -d "{\"sha\": \"${{github.sha}}\", \"project\": \"${{github.repository}}\", \"gituser\": \"${{github.actor}}\", \
           \"host\": \"${{ inputs.host }}\", \"hostpath\": \"${{ inputs.host-path }}\" }" \
           http://dashboard-reporter.connectorsapp.com/connectors/deployment
