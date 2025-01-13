@@ -186,3 +186,12 @@ jobs:
           cd ${{ github.event.repository.name }}-helm-civo
           kubectl apply -f repo-creds.yaml
           kubectl apply -f application.yaml
+
+      - name: Notify deployment
+        run: |
+          echo "------ create new deployment record ------"
+          curl -X POST \
+          -d "{\"sha\": \"${{github.sha}}\", \"project\": \"${{github.repository}}\", \"gituser\": \"${{github.actor}}\", \
+          \"host\": \"${{ inputs.host }}\", \"hostpath\": \"${{ inputs.host-path }}\" }" \
+          http://dashboard-reporter.connectorsapp.com/connectors/deployment
+
