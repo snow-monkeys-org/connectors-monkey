@@ -66,7 +66,7 @@ on:
 jobs:
   deploy-civo-with-public-image:
     runs-on: ubuntu-22.04
-    if: inputs.image != '' && inputs.image-scope == 'public'
+    if: inputs.image != ''
     steps:
       - name: deploy civo provider
         run: |
