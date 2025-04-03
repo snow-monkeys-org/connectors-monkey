@@ -43,6 +43,10 @@ on:
         required: false
         type: string
         default: 'docker.io'
+      notification-off:
+        required: false
+        type: boolean
+        default: false
     secrets:
       cloud-token:
         required: false
@@ -188,6 +192,7 @@ jobs:
           kubectl apply -f application.yaml
       
       - name: Notify deployment
+        if: ${{ ! inputs.notification-off }}
         run: |
           echo "------ create new deployment record ------"
           curl -X POST \
