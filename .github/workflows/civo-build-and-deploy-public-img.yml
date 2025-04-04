@@ -6,7 +6,7 @@ on:
       cloud-provider:
         required: false
         type: string
-        default: local
+        default: 'civo'
       metadata:
         required: false
         type: string
@@ -48,7 +48,7 @@ on:
         required: false
 
 jobs:
-  build-and-deploy-civo-with-private-image:
+  build-and-deploy-civo-with-public-image:
     runs-on: ubuntu-22.04
     steps:
       - name: build and deploy civo provider

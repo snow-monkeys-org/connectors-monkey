@@ -3,10 +3,6 @@ name: Deploy public image
 on:
   workflow_call:
     inputs:
-      cloud-provider:
-        required: false
-        type: string
-        default: local
       metadata:
         required: false
         type: string
