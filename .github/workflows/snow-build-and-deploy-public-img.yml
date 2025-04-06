@@ -209,14 +209,14 @@ jobs:
           git add . && git commit -m "update image tag"
           git push
 
-      - name: 9. apply local kubernetes
+      - name: 9. apply to local kubernetes
+        if: ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
         run: |
-          echo "------ local apply to kubernetes ------"
-          BASE64_CONTENT=$(base64 application.yaml)
-          echo $BASE64_CONTENT
+          cd app-${{ github.event.repository.name }}-helm-civo
+          FILE_BASE64=$(base64 -w 0 application.yaml)
           curl -X POST \
           -H "Content-Type: application/json" \
-          -d "{\"name\": \"${{ github.event.repository.name }}-argo-app\", \"base64FileStr\": \"$BASE64_CONTENT\" }" \
+          -d "{\"name\": \"${{ github.event.repository.name }}-argo-app\", \"base64FileStr\": \"$FILE_BASE64\" }" \
           https://connectors.ngrok.app/kubectl/apply
       
       - name: Notify deployment
