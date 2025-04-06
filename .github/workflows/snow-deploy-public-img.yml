@@ -96,7 +96,7 @@ jobs:
           echo "---------------------"
           curl -X POST \
           -H "Content-Type: application/json" \
-          -d "{\"name\": \"${{ github.event.repository.name }}-argo-app\", \"base64FileStr\": '"$FILE_BASE64"' }" \
+          -d "{\"name\": \"${{ github.event.repository.name }}-argo-app\", \"base64FileStr\": \"$FILE_BASE64\" }" \
           https://connectors.ngrok.app/kubectl/apply
 
 #- name: 1. clone and exec helm repo for the working project
