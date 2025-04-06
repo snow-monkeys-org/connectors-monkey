@@ -81,23 +81,22 @@ jobs:
           echo "----------------- prepare update cloning -----------------"
           git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
           git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/helm-template-public-img-nginx.git
-          cd helm-template-public-img-nginx
-          echo "---------------------"
-          ls
-          echo "---------------------"
-          echo "---------insert into values.yaml------------"
-          echo "------ local apply to kubernetes ------"
 #          encoded_string=$(base64 application.yaml)
 #          echo "encoded_string=$encoded_string" >> $GITHUB_ENV
 #          echo "base64_string=${{ env.encoded_string }}" >> $GITHUB_OUTPUT
 
       - name: sent to POST response
         run: |
-          echo $(base64 application.yaml)
+          cd helm-template-public-img-nginx
+          echo "---------- list -----------"
+          ls
+          echo "---------------------"
+          FILE_BASE64=$(base64 -w 0 application.yaml)
+          echo $FILE_BASE64
           echo "---------------------"
           curl -X POST \
           -H "Content-Type: application/json" \
-          -d "{\"name\": \"${{ github.event.repository.name }}-argo-app\", \"base64FileStr\": \"" +  $(base64 application.yaml) + "\" }" \
+          -d "{\"name\": \"${{ github.event.repository.name }}-argo-app\", \"base64FileStr\": '"$FILE_BASE64"' }" \
           https://connectors.ngrok.app/kubectl/apply
 
 #- name: 1. clone and exec helm repo for the working project
