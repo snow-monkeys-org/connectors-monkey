@@ -77,7 +77,7 @@ jobs:
           echo "---------------------"
 
       - name: clone git and apply to snow cluster
-        id: apply-base64
+        id: set_string
         run: |
           echo "----------------- prepare update cloning -----------------"
           git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
@@ -88,16 +88,21 @@ jobs:
           echo "---------------------"
           echo "---------insert into values.yaml------------"
           echo "------ local apply to kubernetes ------"
-          BASE64_CONTENT=$(base64 application.yaml)
-          echo "VAR_BASE64=$BASE64_CONTENT" >> $GITHUB_OUTPUT
+          encoded_string=$(base64 application.yaml)
+          echo "encoded_string=$encoded_string" >> $GITHUB_ENV
       
+      - name: pass base64 encoded string to output
+        id: pass_to_output
+        run: |
+          echo "base64_string=${{ env.encoded_string }}" >> $GITHUB_OUTPUT
+
       - name: sent to POST response
         run: |
           echo ${{ steps.apply-base64.outputs.VAR_BASE64 }}
           echo "---------------------"
           curl -X POST \
           -H "Content-Type: application/json" \
-          -d "{\"name\": \"${{ github.event.repository.name }}-argo-app\", \"base64FileStr\": \"${{ steps.apply-base64.outputs.VAR_BASE64 }}\" }" \
+          -d "{\"name\": \"${{ github.event.repository.name }}-argo-app\", \"base64FileStr\": \"${{ steps.pass_to_output.outputs.VAR_BASE64 }}\" }" \
           https://connectors.ngrok.app/kubectl/apply
 
 #- name: 1. clone and exec helm repo for the working project
