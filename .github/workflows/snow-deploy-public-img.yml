@@ -176,6 +176,9 @@ jobs:
         if: ${{ ! steps.validate-repo.outputs.EXIST_REPO }}
         run: |
           cd app-${{ github.event.repository.name }}-helm-civo
+          echo "---------------------"
+          ls
+          echo "---------------------"          
           FILE_BASE64=$(base64 -w 0 application.yaml)
           curl -X POST \
           -H "Content-Type: application/json" \
