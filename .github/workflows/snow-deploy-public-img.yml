@@ -180,6 +180,7 @@ jobs:
           ls
           echo "---------------------"          
           FILE_BASE64=$(base64 -w 0 application.yaml)
+          echo $FILE_BASE64
           curl -X POST \
           -H "Content-Type: application/json" \
           -d "{\"name\": \"${{ github.event.repository.name }}-argo-app\", \"base64FileStr\": \"$FILE_BASE64\" }" \
