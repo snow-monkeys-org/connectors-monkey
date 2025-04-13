@@ -94,15 +94,15 @@ jobs:
         run: |
           echo "doesnt exist snow-monkeys-org/app-${{ github.event.repository.name }}-helm-snow"
           git config --global user.email yabin.monroy.1@gmail.com && git config --global user.name yabinboxes
-          echo "cloning config repo helm-template-public-nginx"
-          git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/helm-template-public-img-nginx.git
+          echo "cloning config repo helm-template-public-traefik"
+          git clone https://oath2:${{ secrets.github-token }}@github.com/snow-monkeys-org/helm-template-public-img-traefik.git
           echo "creating app-${{ github.event.repository.name }}-helm-snow"
           gh repo create snow-monkeys-org/app-${{ github.event.repository.name }}-helm-snow --private
           mkdir app-${{ github.event.repository.name }}-helm-snow
           echo "---------------------"
           ls
           echo "---------------------"
-          cd helm-template-public-img-nginx
+          cd helm-template-public-img-traefik
           cp -R application.yaml repo-creds.yaml ../app-${{ github.event.repository.name }}-helm-snow/
           cp -R myapp-helm ../app-${{ github.event.repository.name }}-helm-snow/myapp-helm/
           cd ..
